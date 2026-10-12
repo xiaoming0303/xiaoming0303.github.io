@@ -184,7 +184,6 @@ const SITE = {
     items: [
       { label: '邮箱',   value: '2827098045@qq.com',  href: 'mailto:2827098045@qq.com' },
       { label: '电话',   value: '134 7081 4729 ',    href: '' },
-      { label: '微信',   value: '微信号 ulul6gnim',        href: '' },
       { label: '在线作品集', value: 'xiaoming0303.github.io', href: 'https://xiaoming0303.github.io' },
       { label: 'GitHub', value: 'github.com/xiaoming0303', href: 'https://github.com/xiaoming0303' }
     ],
