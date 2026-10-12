@@ -137,7 +137,7 @@ const SITE = {
         embedLabel: 'HTML 工具 · 点击运行',
         source: '',
         links: [ { label: '在新窗口打开', href: 'tools/roll-call.html' } ]
-      }
+      },
     ]
   },
 
