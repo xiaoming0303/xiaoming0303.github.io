@@ -49,7 +49,7 @@ const SITE = {
     eyebrow: 'Teaching',
     title: '教学课件与设计',
     desc: '按课时设计的完整课件，含情境导入、任务单与课堂检测。点击卡片查看该课件的全部文件。',
-    showAllCard: fasle,          // 是否显示第一张"全部课件"汇总卡（改成 false 就不显示）
+    showAllCard: false,          // 是否显示第一张"全部课件"汇总卡（改成 false 就不显示）
     items: [
       {
         title: '《认识算法与流程图》',
