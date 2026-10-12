@@ -120,6 +120,16 @@
   }
   .ph code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--accent)}
 
+  /* 卡片封面：没有截图时自动生成的图形占位 */
+  .cover-ph{
+    width:100%;height:100%;border-radius:8px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    border:1px solid rgba(24,42,89,.06);
+  }
+  .cover-ph .ci{font-size:36px;line-height:1;filter:saturate(.9)}
+  .cover-ph .ct{font-size:12px;color:#5d6675;letter-spacing:.02em}
+  .cover-ph .cs{font-size:11px;color:#8b93a0}
+
   /* embed */
   .embed-box{border-bottom:1px solid var(--line);background:var(--surface);padding:14px}
   .embed-box iframe{width:100%;aspect-ratio:4/3;border:0;border-radius:10px;background:#fff}

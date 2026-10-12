@@ -28,9 +28,27 @@
   }
 
   /* ---------- 封面 / 占位 ---------- */
+  /* 没配 cover 截图时，按标题关键词自动挑一个图标和配色，
+     卡片看起来像有封面，而不是空白占位框。填了 cover 就以你的图为准。 */
+  function toolIcon(item) {
+    var t = String(item.title || '') + ' ' + String(item.tag || '') + ' ' + String(item.desc || '');
+    if (/成绩|统计|分数|分析|报表/.test(t))  return { i: '\uD83D\uDCCA', bg: 'linear-gradient(135deg,#eef3ff,#d9e4ff)', s: '数据 · 统计' };
+    if (/点名|随机|抽取|抽签|分组/.test(t))  return { i: '\uD83C\uDFAF', bg: 'linear-gradient(135deg,#fff4e8,#ffdfc0)', s: '互动 · 抽取' };
+    if (/游戏|闯关|钓鱼|分类|竞赛/.test(t))  return { i: '\uD83C\uDFAE', bg: 'linear-gradient(135deg,#e9faf1,#c9ecda)', s: '游戏 · 互动' };
+    if (/scratch|sb3|图形化/i.test(t))       return { i: '\uD83E\uDDE9', bg: 'linear-gradient(135deg,#f4eeff,#e1d2ff)', s: '图形化编程' };
+    if (/python|代码|脚本|算法/.test(t))     return { i: '\uD83D\uDC0D', bg: 'linear-gradient(135deg,#eaf6ff,#cfe6fb)', s: '代码 · 脚本' };
+    return { i: '\uD83E\uDDF0', bg: 'linear-gradient(135deg,#f2f5f9,#e2e9f3)', s: '网页工具' };
+  }
+
   function coverInner(item, i, dir, runnable) {
     if (has(item.cover)) { return '<img src="' + esc(item.cover) + '" alt="' + esc(item.title) + '">'; }
-    if (runnable) { return '<div class="ph">点击卡片即可运行</div>'; }
+    if (runnable) {
+      var t = toolIcon(item);
+      return '<div class="cover-ph" style="background:' + t.bg + '">' +
+             '<span class="ci">' + t.i + '</span>' +
+             '<span class="ct">点击卡片运行</span>' +
+             '<span class="cs">' + esc(t.s) + '</span></div>';
+    }
     if (i === 0) {
       return '<div class="ph">封面图待补充<br>把图片放进 assets 文件夹，<br>再在 data.js 里填 <code>' +
         esc(dir) + '</code></div>';
