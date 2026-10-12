@@ -138,6 +138,17 @@ const SITE = {
         source: '',
         links: [ { label: '在新窗口打开', href: 'tools/roll-call.html' } ]
       },
+      {
+        title: '知识分类小游戏',
+        tag: 'HTML · 课堂互动',
+        desc: '用于课堂知识点归类练习的互动小游戏，学生拖拽词条完成分类并即时得到反馈，可作为课堂检测或小组竞赛环节。',
+        cover: '',
+        gallery: [],
+        embed: 'tools/knowledge-sort.html',
+        embedLabel: 'HTML 游戏 · 点击运行',
+        source: '',
+        links: [ { label: '在新窗口打开', href: 'tools/knowledge-sort.html' } ]
+      }
     ]
   },
 
