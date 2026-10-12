@@ -49,7 +49,7 @@ const SITE = {
     eyebrow: 'Teaching',
     title: '教学课件与设计',
     desc: '按课时设计的完整课件，含情境导入、任务单与课堂检测。点击卡片查看该课件的全部文件。',
-    showAllCard: true,          // 是否显示第一张"全部课件"汇总卡（改成 false 就不显示）
+    showAllCard: fasle,          // 是否显示第一张"全部课件"汇总卡（改成 false 就不显示）
     items: [
       {
         title: '《认识算法与流程图》',
@@ -58,21 +58,9 @@ const SITE = {
         cover: '',                    // 封面图路径，例：'assets/kejian-01.png'
         gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
         files: [
-          { name: '课件 PPT（24 页）',   href: '', note: 'PPTX' },
+          { name: '课件 PPT',   href: '', note: 'PPTX' },
           { name: '课堂任务单',          href: '', note: 'PDF' },
           { name: '流程图练习参考答案',   href: '', note: 'PDF' }
-        ]
-      },
-      {
-        title: '《Scratch 入门：让角色动起来》',
-        tag: '七年级 · 8 课时',
-        desc: '连贯的入门单元设计，从坐标、事件到循环，含分层任务单，照顾不同进度的学生。',
-        cover: '',
-        gallery: [],
-        files: [
-          { name: '第 1-2 课时 PPT',    href: '', note: 'PPTX' },
-          { name: '第 3-8 课时 PPT',    href: '', note: 'PPTX' },
-          { name: '分层任务单（三档）',  href: '', note: 'PDF' }
         ]
       },
       {
@@ -82,7 +70,7 @@ const SITE = {
         cover: '',
         gallery: [],
         files: [
-          { name: '课件 PPT（18 页）',   href: '', note: 'PPTX' },
+          { name: '课件 PPT',   href: '', note: 'PPTX' },
           { name: '辩论评分表',          href: '', note: 'PDF' }
         ]
       },
@@ -93,7 +81,7 @@ const SITE = {
         cover: '',
         gallery: [],
         files: [
-          { name: '课件 PPT（22 页）',   href: '', note: 'PPTX' },
+          { name: '课件 PPT',   href: '', note: 'PPTX' },
           { name: '示例数据文件',        href: '', note: 'XLSX' }
         ]
       }
