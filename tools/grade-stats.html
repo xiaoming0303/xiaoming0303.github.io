@@ -3,179 +3,658 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>成绩统计小工具</title>
+<title>成绩统计工具</title>
 <style>
   :root{
     --bg:#ffffff;--surface:#f6f7f9;--text:#1b1f24;--muted:#5b6470;
     --line:#e6e8ec;--accent:#2f5fe0;--accent-soft:#eef2ff;
-    --danger:#a32d2d;--ok:#0f6e56;
+    --danger:#a32d2d;--danger-soft:#fdf1f1;--ok:#0f6e56;--warn:#8a5a00;--warn-soft:#fffaf0;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
-    color:var(--text);background:var(--bg);line-height:1.7;
-    padding:26px 22px 36px;-webkit-font-smoothing:antialiased;
+    color:var(--text);background:var(--bg);line-height:1.7;font-size:14px;
+    padding:24px 20px 40px;-webkit-font-smoothing:antialiased;
   }
-  h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
-  .sub{font-size:13px;color:var(--muted);margin-top:4px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+  h1{font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+  h2{font-size:14.5px;font-weight:600;margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
   textarea{
-    width:100%;min-height:196px;resize:vertical;padding:12px 14px;font-size:13px;
-    font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.8;
+    width:100%;min-height:172px;resize:vertical;padding:11px 13px;font-size:12.5px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.75;
     border:1px solid var(--line);border-radius:10px;outline:none;color:var(--text);
+    white-space:pre;overflow-x:auto;
   }
   textarea:focus{border-color:var(--accent)}
-  .hintline{font-size:12px;color:var(--muted);margin-top:8px}
-  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .stat{background:var(--surface);border-radius:10px;padding:12px 14px}
-  .stat .k{font-size:12px;color:var(--muted)}
-  .stat .v{font-size:22px;font-weight:500;margin-top:2px;letter-spacing:-.02em}
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .hintline{font-size:11.5px;color:var(--muted);margin-top:7px}
+  .hintline code{background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:start}
+  .stat{background:var(--surface);border-radius:10px;padding:10px 13px}
+  .stat .k{font-size:11.5px;color:var(--muted)}
+  .stat .v{font-size:19px;font-weight:500;margin-top:1px;letter-spacing:-.02em;line-height:1.35}
+  .stat .v small{font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
+  .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;align-items:center}
   button{
-    font:inherit;font-size:14px;padding:9px 18px;border-radius:10px;cursor:pointer;
+    font:inherit;font-size:13px;padding:8px 15px;border-radius:9px;cursor:pointer;
     border:1px solid var(--line);background:#fff;color:var(--text);transition:.16s;
   }
   button:hover{border-color:#c3cee8;color:var(--accent)}
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   button.primary:hover{background:#2450c4;color:#fff}
-  .dist{margin-top:24px}
-  .dist h2{font-size:15px;font-weight:600;margin-bottom:12px}
-  .bar-row{display:grid;grid-template-columns:76px 1fr 62px;align-items:center;gap:12px;margin-bottom:9px}
-  .bar-row .lb{font-size:13px;color:var(--muted)}
-  .bar{height:12px;background:#eef0f4;border-radius:999px;overflow:hidden}
-  .bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
-  .bar-row .vv{font-size:12px;color:var(--muted);text-align:right}
-  .bars .bar-row:nth-child(3) i{background:var(--ok)}
-  .care{
-    margin-top:20px;border:1px solid var(--line);border-left:3px solid var(--danger);
-    border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);
+  .sec{margin-top:26px}
+  .subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+  .scard{border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+  .scard .nm{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .scard .nm em{font-style:normal;font-size:11px;color:var(--muted);font-weight:400}
+  .scard .big{font-size:25px;font-weight:500;letter-spacing:-.03em;margin:4px 0 1px}
+  .scard .big span{font-size:11.5px;color:var(--muted);font-weight:400;margin-left:3px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12px;margin-top:8px}
+  .kv dt{color:var(--muted)}
+  .kv dd{text-align:right;font-variant-numeric:tabular-nums}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+  .tab{
+    font-size:12.5px;padding:5px 13px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;cursor:pointer;color:var(--muted);transition:.16s;
   }
-  .care b{color:var(--danger);font-weight:500}
-  .empty{font-size:13px;color:var(--muted);margin-top:20px}
-  @media (max-width:720px){ .grid{grid-template-columns:1fr} .stats{grid-template-columns:1fr 1fr} }
+  .tab:hover{color:var(--accent);border-color:#c3cee8}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .bar-row{display:grid;grid-template-columns:88px 1fr 56px;align-items:center;gap:11px;margin-bottom:8px}
+  .bar-row .lb{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{height:11px;background:#eef0f4;border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+  .bar-row .vv{font-size:11.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  tbody tr:last-child td{border-bottom:none}
+  th{cursor:pointer;color:var(--muted);font-weight:500;font-size:12px;user-select:none;background:var(--surface)}
+  th:hover{color:var(--accent)}
+  th.act{color:var(--accent);font-weight:600}
+  td.fail{color:var(--danger);font-weight:500}
+  td.na{color:#b6bcc5}
+  .care{
+    margin-top:18px;border:1px solid var(--line);border-left:3px solid var(--danger);
+    border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--muted);background:var(--danger-soft);
+  }
+  .care b{color:var(--danger);font-weight:600}
+  .care.w{border-left-color:var(--warn);background:var(--warn-soft)}
+  .care.w b{color:var(--warn)}
+  .care.ok{border-left-color:var(--ok);background:#f0f9f6}
+  .care.ok b{color:var(--ok)}
+  .care + .care{margin-top:10px}
+  .report{
+    white-space:pre-wrap;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:13px 15px;font-size:12.5px;line-height:1.9;
+  }
+  .cfgs{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:11px}
+  .cfgs label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .cfgs input{
+    width:60px;padding:5px 8px;font:inherit;font-size:12.5px;border:1px solid var(--line);
+    border-radius:8px;outline:none;color:var(--text);text-align:center;
+  }
+  .cfgs input:focus{border-color:var(--accent)}
+  .empty{font-size:12.5px;color:var(--muted);margin-top:16px;
+    border:1px dashed var(--line);border-radius:10px;padding:14px}
+  .tipbox{
+    margin-top:10px;font-size:11.5px;color:var(--muted);background:var(--surface);
+    border-radius:8px;padding:9px 12px;line-height:1.8;
+  }
+  .tipbox code{background:#fff;border:1px solid var(--line);padding:0 4px;border-radius:4px;font-size:11px}
+  .hdrow{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .cnt{font-size:12px;color:var(--muted)}
+  @media (max-width:720px){
+    .grid{grid-template-columns:1fr}
+    body{padding:18px 14px 32px}
+  }
 </style>
 </head>
 <body>
 
-<h1>成绩统计小工具</h1>
-<p class="sub">支持「张三 92」或纯数字，空格 / 逗号 / 制表符 / 换行都能识别</p>
+<h1>成绩统计工具</h1>
+<p class="sub">支持整张成绩表：第一列姓名，后面每列一个科目。可直接从 Excel / WPS 复制粘贴。</p>
+
+<div class="cfgs">
+  <label>满分 <input type="number" id="full" value="100" min="1" step="1"></label>
+  <label>及格线 <input type="number" id="pass" value="60" min="0" step="1"></label>
+  <label>优秀线 <input type="number" id="great" value="85" min="0" step="1"></label>
+</div>
 
 <div class="grid">
   <div>
-    <textarea id="input" placeholder="张三 92&#10;李四 78&#10;王五 55&#10;赵六 88"></textarea>
-    <p class="hintline">一次可以贴一整列成绩，Ctrl+V 直接粘</p>
+    <textarea id="input" spellcheck="false" placeholder="姓名&#9;语文&#9;数学&#9;英语&#10;张明轩&#9;92&#9;88&#9;95&#10;李思远&#9;78&#9;95&#9;82&#10;王雨欣&#9;88&#9;76&#9;91"></textarea>
+    <div class="tipbox">
+      识别规则：按 <code>Tab</code> / 逗号 / 空格分列；<b>第一行不是数字就当表头</b>（科目名）。<br>
+      空着或写 <code>缺考</code> 会记为缺考，不计入该科统计。只有一列数字时按匿名成绩处理。
+    </div>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="stats" id="overview"></div>
 </div>
 
 <div class="row">
   <button class="primary" id="run">统计</button>
-  <button id="demo">加载示例</button>
+  <button id="demo">载入示例</button>
+  <button id="report">生成分析文字</button>
   <button id="csv">导出 CSV</button>
   <button id="clear">清空</button>
 </div>
 
-<div class="dist" id="dist"></div>
+<div class="sec" id="secSubject" style="display:none">
+  <h2>分科统计</h2>
+  <div class="subs" id="subjects"></div>
+</div>
+
+<div class="sec" id="secDist" style="display:none">
+  <h2>分数段分布</h2>
+  <div class="tabs" id="bandTabs"></div>
+  <div id="bars"></div>
+</div>
+
+<div class="sec" id="secTable" style="display:none">
+  <div class="hdrow"><h2>学生明细</h2><span class="cnt">点表头可排序</span></div>
+  <div class="tblwrap"><table id="table"></table></div>
+</div>
+
+<div class="sec" id="secCare" style="display:none">
+  <h2>需要关注</h2>
+  <div id="care"></div>
+</div>
+
+<div class="sec" id="secReport" style="display:none">
+  <div class="hdrow"><h2>成绩分析</h2><span class="cnt">可直接复制到试卷分析或家长会材料</span></div>
+  <div class="report" id="reportText"></div>
+</div>
 
 <script>
 (function(){
   'use strict';
+
   var $ = function(id){ return document.getElementById(id); };
 
-  function parse(text){
-    var rows = [];
-    text.split(/\r?\n/).forEach(function(line){
-      line = line.trim();
-      if(!line){ return; }
-      var m = line.match(/^(.*?)[,，\s:：\t]+(-?\d+(?:\.\d+)?)\s*$/);
-      if(m){
-        rows.push({ name: m[1].trim(), score: parseFloat(m[2]) });
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function isNum(s){ return /^-?\d+(\.\d+)?$/.test(s); }
+  function fmt(n, d){ return n == null ? '—' : Number(n).toFixed(d == null ? 1 : d); }
+
+  /* ---------- 解析：一张表，第一列姓名，其余各列为科目 ---------- */
+  function splitRow(line){
+    if (line.indexOf('\t') > -1) return line.split('\t');
+    if (/[,，;；|]/.test(line))   return line.split(/[,，;；|]/);
+    return line.trim().split(/\s+/);
+  }
+
+  function parseTable(text){
+    var lines = text.split(/\r?\n/)
+      .map(function(l){ return l.replace(/\s+$/, ''); })
+      .filter(function(l){ return l.trim() !== ''; });
+    if (!lines.length) return null;
+
+    var grid = lines.map(function(l){
+      return splitRow(l).map(function(c){ return String(c).trim(); });
+    });
+
+    var ncol = 0;
+    grid.forEach(function(r){ if (r.length > ncol) ncol = r.length; });
+
+    var header = null, body = grid, anon = false;
+
+    if (ncol <= 1){
+      /* 只有一列：当作匿名成绩 */
+      header = ['姓名', '成绩'];
+      anon = true;
+    } else if (grid.length >= 2){
+      var allText = grid[0].every(function(c){ return c.length > 0 && !isNum(c); });
+      if (allText){ header = grid[0]; body = grid.slice(1); }
+    }
+    if (!header){
+      header = ['姓名'];
+      for (var i = 1; i < ncol; i++) header.push('科目' + i);
+    }
+
+    var subjects = header.slice(1).map(function(s, i){ return s || ('科目' + (i + 1)); });
+    var students = [];
+
+    body.forEach(function(r){
+      var cells = r.slice(0, ncol);
+      while (cells.length < ncol) cells.push('');
+
+      if (anon){
+        var av = isNum(cells[0]) ? parseFloat(cells[0]) : null;
+        if (av === null) return;
+        students.push({
+          name: '学生' + (students.length + 1),
+          scores: (function(){ var o = {}; o['成绩'] = av; return o; })(),
+          total: av, avg: av, missing: []
+        });
         return;
       }
-      var m2 = line.match(/(-?\d+(?:\.\d+)?)/);
-      if(m2){ rows.push({ name: '', score: parseFloat(m2[1]) }); }
+
+      var name = cells[0] || ('学生' + (students.length + 1));
+      var obj = { name: name, scores: {}, missing: [] };
+      var total = 0, cnt = 0;
+
+      subjects.forEach(function(sub, i){
+        var raw = cells[i + 1];
+        var v = isNum(raw) ? parseFloat(raw) : null;
+        obj.scores[sub] = v;
+        if (v === null){ obj.missing.push(sub); }
+        else { total += v; cnt++; }
+      });
+
+      if (!cnt) return;
+      obj.total = total;
+      obj.avg = total / cnt;
+      students.push(obj);
     });
-    return rows.filter(function(r){ return !isNaN(r.score); });
+
+    return { subjects: subjects, students: students, anon: anon };
   }
 
+  /* ---------- 统计函数 ---------- */
   function median(nums){
-    var a = nums.slice().sort(function(x,y){ return x-y; });
+    var a = nums.slice().sort(function(x, y){ return x - y; });
     var n = a.length;
-    if(!n){ return 0; }
-    if(n % 2){ return a[(n-1)/2]; }
-    return (a[n/2 - 1] + a[n/2]) / 2;
+    if (!n) return null;
+    if (n % 2) return a[(n - 1) / 2];
+    return (a[n / 2 - 1] + a[n / 2]) / 2;
   }
-
+  function stddev(nums){
+    if (nums.length < 2) return 0;
+    var m = nums.reduce(function(x, y){ return x + y; }, 0) / nums.length;
+    var s = nums.reduce(function(acc, v){ return acc + (v - m) * (v - m); }, 0);
+    return Math.sqrt(s / (nums.length - 1));
+  }
   function pct(part, total){
-    if(!total){ return '0%'; }
+    if (!total) return '—';
     return Math.round(part / total * 100) + '%';
   }
 
-  function statCard(k, v){
-    return '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
+  /* ---------- 状态 ---------- */
+  var S = { res: null, sortKey: 'rank', sortDir: 1, band: '__all__' };
+
+  function cfg(){
+    var full  = parseFloat($('full').value);
+    var pass  = parseFloat($('pass').value);
+    var great = parseFloat($('great').value);
+    if (!(full > 0))  full = 100;
+    if (isNaN(pass))  pass = full * 0.6;
+    if (isNaN(great)) great = full * 0.85;
+    return { full: full, pass: pass, great: great };
   }
 
-  function render(){
-    var rows = parse($('input').value);
-    var s = $('stats'), d = $('dist');
-    if(!rows.length){
-      s.innerHTML = '';
-      d.innerHTML = '<p class="empty">先在左边粘贴成绩，然后点「统计」。</p>';
-      return;
+  function subjectStats(c){
+    return S.res.subjects.map(function(sub){
+      var vals = [], hi = null, hiN = '', lo = null, loN = '';
+      S.res.students.forEach(function(st){
+        var v = st.scores[sub];
+        if (v === null) return;
+        vals.push(v);
+        if (hi === null || v > hi){ hi = v; hiN = st.name; }
+        if (lo === null || v < lo){ lo = v; loN = st.name; }
+      });
+      var n = vals.length;
+      var passN  = vals.filter(function(v){ return v >= c.pass;  }).length;
+      var greatN = vals.filter(function(v){ return v >= c.great; }).length;
+      return {
+        name: sub, n: n,
+        avg: n ? vals.reduce(function(a, b){ return a + b; }, 0) / n : null,
+        hi: hi, hiN: hiN, lo: lo, loN: loN,
+        median: median(vals), sd: stddev(vals),
+        passRate: pct(passN, n), greatRate: pct(greatN, n),
+        failList: S.res.students.filter(function(st){
+          return st.scores[sub] !== null && st.scores[sub] < c.pass;
+        }).map(function(st){ return st.name + '（' + st.scores[sub] + '）'; })
+      };
+    });
+  }
+
+  function computeRanks(){
+    var sorted = S.res.students.slice().sort(function(a, b){ return b.total - a.total; });
+    var r = 0, prev = null;
+    sorted.forEach(function(st, i){
+      if (st.total !== prev){ r = i + 1; prev = st.total; }
+      st.rank = r;
+    });
+    return sorted;
+  }
+
+  /* ---------- 渲染 ---------- */
+  function overviewHTML(c){
+    var sts = S.res.students;
+    var all = [];
+    sts.forEach(function(st){
+      S.res.subjects.forEach(function(sub){
+        var v = st.scores[sub];
+        if (v !== null) all.push(v);
+      });
+    });
+    var passN  = all.filter(function(v){ return v >= c.pass;  }).length;
+    var greatN = all.filter(function(v){ return v >= c.great; }).length;
+    var avg = all.length ? all.reduce(function(a, b){ return a + b; }, 0) / all.length : null;
+
+    var top = sts.slice().sort(function(a, b){ return b.total - a.total; })[0];
+    var absent = [];
+    sts.forEach(function(st){
+      if (st.missing.length) absent.push(st.name + '（' + st.missing.join('、') + '）');
+    });
+
+    function card(k, v, s){
+      return '<div class="stat"><div class="k">' + esc(k) + '</div><div class="v">' + v +
+             (s ? ' <small>' + esc(s) + '</small>' : '') + '</div></div>';
     }
-    var scores = rows.map(function(r){ return r.score; });
-    var max = Math.max.apply(null, scores);
-    var min = Math.min.apply(null, scores);
-    var sum = scores.reduce(function(a,b){ return a+b; }, 0);
-    var avg = sum / scores.length;
-    var pass = scores.filter(function(v){ return v >= 60; }).length;
-    var great = scores.filter(function(v){ return v >= 85; }).length;
 
-    var maxName = '', minName = '';
-    rows.forEach(function(r){ if(r.score === max && !maxName){ maxName = r.name; } });
-    rows.forEach(function(r){ if(r.score === min && !minName){ minName = r.name; } });
+    return card('学生人数', sts.length, '人') +
+           card('科目数', S.res.subjects.length, '科') +
+           card('全科平均', fmt(avg), '分') +
+           card('及格率', pct(passN, all.length), passN + '/' + all.length) +
+           card('优秀率', pct(greatN, all.length), '≥' + c.great + '分') +
+           card('总分第一', top ? String(top.total) : '—', top ? top.name : '') +
+           (absent.length
+             ? '<div class="care w" style="grid-column:1/-1"><b>缺考登记：</b>' + esc(absent.join('；')) + '</div>'
+             : '');
+  }
 
-    s.innerHTML =
-      statCard('总人数', scores.length) +
-      statCard('平均分', avg.toFixed(1)) +
-      statCard('最高分', max + (maxName ? ' <span style="font-size:13px;color:var(--muted)">' + maxName + '</span>' : '')) +
-      statCard('最低分', min + (minName ? ' <span style="font-size:13px;color:var(--muted)">' + minName + '</span>' : '')) +
-      statCard('及格率', pct(pass, scores.length)) +
-      statCard('优秀率(≥85)', pct(great, scores.length)) +
-      statCard('中位数', median(scores).toFixed(1)) +
-      statCard('分数极差', (max - min).toFixed(1));
+  function subjectsHTML(c){
+    var stats = subjectStats(c);
+    var best = null, worst = null;
+    stats.forEach(function(s){
+      if (s.avg === null) return;
+      if (best === null || s.avg > best.avg)  best  = s;
+      if (worst === null || s.avg < worst.avg) worst = s;
+    });
 
-    var bands = [
-      { label: '90-100', test: function(v){ return v >= 90; } },
-      { label: '80-89',  test: function(v){ return v >= 80 && v < 90; } },
-      { label: '70-79',  test: function(v){ return v >= 70 && v < 80; } },
-      { label: '60-69',  test: function(v){ return v >= 60 && v < 70; } },
-      { label: '60 以下', test: function(v){ return v < 60; } }
-    ];
-    var counts = bands.map(function(b){ return scores.filter(b.test).length; });
+    return stats.map(function(s){
+      var tag = '';
+      if (stats.length > 1){
+        if (best && s.name === best.name)  tag = '<em style="color:var(--ok)">最强</em>';
+        else if (worst && s.name === worst.name) tag = '<em style="color:var(--danger)">最薄弱</em>';
+      }
+      if (s.n === 0){
+        return '<div class="scard"><div class="nm"><span>' + esc(s.name) + '</span></div>' +
+               '<div class="big" style="color:var(--muted);font-size:15px;font-weight:400">暂无成绩</div></div>';
+      }
+      return '<div class="scard">' +
+        '<div class="nm"><span>' + esc(s.name) + '</span>' + tag + '</div>' +
+        '<div class="big">' + fmt(s.avg) + '<span>平均分</span></div>' +
+        '<dl class="kv">' +
+          '<dt>最高</dt><dd>' + fmt(s.hi) + ' <span style="color:var(--muted)">' + esc(s.hiN) + '</span></dd>' +
+          '<dt>最低</dt><dd>' + fmt(s.lo) + ' <span style="color:var(--muted)">' + esc(s.loN) + '</span></dd>' +
+          '<dt>中位数</dt><dd>' + fmt(s.median) + '</dd>' +
+          '<dt>标准差</dt><dd>' + fmt(s.sd) + '</dd>' +
+          '<dt>及格率</dt><dd>' + s.passRate + '</dd>' +
+          '<dt>优秀率</dt><dd>' + s.greatRate + '</dd>' +
+        '</dl>' +
+      '</div>';
+    }).join('');
+  }
+
+  function makeBands(c){
+    var lo = [0.9, 0.8, 0.7, 0.6, 0];
+    var hi = [1, 0.9, 0.8, 0.7, 0.6];
+    var color = ['var(--ok)', 'var(--accent)', '#7d97fb', 'var(--warn)', 'var(--danger)'];
+    var out = [];
+    for (var i = 0; i < 5; i++){
+      var a = Math.round(lo[i] * c.full);
+      var b = (i === 0) ? c.full : Math.round(hi[i] * c.full);
+      out.push({
+        label: i < 4 ? (a + ' - ' + (b - (i === 0 ? 0 : 1))) : ('<' + b),
+        lo: a, hi: b, top: c.full, color: color[i]
+      });
+    }
+    return out;
+  }
+
+  function bandTabsHTML(){
+    var tabs = [{ k: '__all__', t: '全科汇总' }].concat(
+      S.res.subjects.map(function(s){ return { k: s, t: s }; })
+    );
+    return tabs.map(function(x){
+      return '<button class="tab' + (S.band === x.k ? ' on' : '') + '" data-band="' + esc(x.k) + '">' +
+             esc(x.t) + '</button>';
+    }).join('');
+  }
+
+  function barsHTML(c){
+    var vals = [];
+    S.res.students.forEach(function(st){
+      if (S.band === '__all__'){
+        S.res.subjects.forEach(function(sub){
+          var v = st.scores[sub];
+          if (v !== null) vals.push(v);
+        });
+      } else {
+        var v2 = st.scores[S.band];
+        if (v2 !== null) vals.push(v2);
+      }
+    });
+    if (!vals.length) return '<p class="empty">这一科还没有成绩数据。</p>';
+
+    var bands = makeBands(c);
+    var counts = bands.map(function(b, i){
+      return vals.filter(function(v){
+        return v >= b.lo && (i === 0 ? v <= b.top : v < b.hi);
+      }).length;
+    });
     var top = Math.max.apply(null, counts.concat([1]));
 
-    d.innerHTML = '<h2>分数段分布</h2><div class="bars">' + bands.map(function(b, i){
+    return '<div>' + bands.map(function(b, i){
       var w = Math.round(counts[i] / top * 100);
-      return '<div class="bar-row"><span class="lb">' + b.label + '</span>' +
-             '<span class="bar"><i style="width:' + w + '%"></i></span>' +
-             '<span class="vv">' + counts[i] + ' 人</span></div>';
+      return '<div class="bar-row">' +
+        '<span class="lb">' + esc(b.label) + '</span>' +
+        '<span class="bar"><i style="width:' + w + '%;background:' + b.color + '"></i></span>' +
+        '<span class="vv">' + counts[i] + ' 人次</span>' +
+      '</div>';
     }).join('') + '</div>' +
-    (function(){
-      var low = rows.filter(function(r){ return r.score < 60 && r.name; });
-      if(!low.length){ return ''; }
-      return '<div class="care"><b>需要关注：</b>' +
-        low.map(function(r){ return r.name + '（' + r.score + '）'; }).join('、') + '</div>';
-    })();
+    '<p class="hintline">共 ' + vals.length + ' 条成绩记录 · 及格线 ' + c.pass + ' 分 · 优秀线 ' + c.great + ' 分</p>';
   }
 
+  function tableHTML(c){
+    var subs = S.res.subjects;
+    var rows = S.res.students.slice();
+
+    if (S.sortKey === 'rank')      rows.sort(function(a, b){ return (a.rank - b.rank) * S.sortDir; });
+    else if (S.sortKey === 'name') rows.sort(function(a, b){ return a.name.localeCompare(b.name, 'zh') * S.sortDir; });
+    else if (S.sortKey === 'total')rows.sort(function(a, b){ return (a.total - b.total) * S.sortDir; });
+    else if (S.sortKey === 'avg')  rows.sort(function(a, b){ return (a.avg - b.avg) * S.sortDir; });
+    else if (subs.indexOf(S.sortKey) > -1){
+      rows.sort(function(a, b){
+        var x = a.scores[S.sortKey], y = b.scores[S.sortKey];
+        if (x === null && y === null) return 0;
+        if (x === null) return 1;
+        if (y === null) return -1;
+        return (x - y) * S.sortDir;
+      });
+    }
+
+    function th(key, txt){
+      return '<th class="' + (S.sortKey === key ? 'act' : '') + '" data-k="' + esc(key) + '">' +
+             esc(txt) + (S.sortKey === key ? (S.sortDir > 0 ? ' ↑' : ' ↓') : '') + '</th>';
+    }
+
+    var head = '<thead><tr>' + th('rank', '排名') + th('name', '姓名');
+    subs.forEach(function(s){ head += th(s, s); });
+    head += th('total', '总分') + th('avg', '平均分') + '<th>薄弱科目</th></tr></thead>';
+
+    var body = '<tbody>' + rows.map(function(st){
+      var tds = '<td>' + st.rank + '</td><td>' + esc(st.name) + '</td>';
+      subs.forEach(function(s){
+        var v = st.scores[s];
+        tds += (v === null) ? '<td class="na">缺考</td>'
+                            : '<td class="' + (v < c.pass ? 'fail' : '') + '">' + fmt(v, 0) + '</td>';
+      });
+      var weak = subs.filter(function(s){
+        return st.scores[s] !== null && st.scores[s] < c.pass;
+      });
+      return '<tr>' + tds +
+        '<td>' + st.total + '</td>' +
+        '<td>' + fmt(st.avg) + '</td>' +
+        '<td class="' + (weak.length ? 'fail' : 'na') + '">' + (weak.length ? esc(weak.join('、')) : '无') + '</td>' +
+      '</tr>';
+    }).join('') + '</tbody>';
+
+    return head + body;
+  }
+
+  function careHTML(c){
+    var subs = S.res.subjects;
+    var multi = [], single = [];
+    S.res.students.forEach(function(st){
+      var fails = subs.filter(function(s){
+        return st.scores[s] !== null && st.scores[s] < c.pass;
+      });
+      if (fails.length >= 2) multi.push(st.name + '（' + fails.join('、') + '）');
+      else if (fails.length === 1) single.push(st.name + '  ' + fails[0]);
+    });
+
+    var h = '';
+    if (multi.length){
+      h += '<div class="care"><b>' + multi.length + ' 人多科不及格（优先约谈）：</b><br>' + esc(multi.join('；')) + '</div>';
+    }
+    if (single.length){
+      h += '<div class="care w"><b>' + single.length + ' 人单科不及格：</b><br>' + esc(single.join('；')) + '</div>';
+    }
+    if (!multi.length && !single.length){
+      h += '<div class="care ok"><b>全部及格</b> —— 本次考试无人低于及格线 ' + c.pass + ' 分。</div>';
+    }
+    return h;
+  }
+
+  function reportHTML(c){
+    var sts = S.res.students, subs = S.res.subjects;
+    var all = [];
+    sts.forEach(function(st){
+      subs.forEach(function(sub){
+        var v = st.scores[sub];
+        if (v !== null) all.push(v);
+      });
+    });
+    var avg = all.length ? all.reduce(function(a, b){ return a + b; }, 0) / all.length : 0;
+    var passN  = all.filter(function(v){ return v >= c.pass;  }).length;
+    var greatN = all.filter(function(v){ return v >= c.great; }).length;
+
+    var stats = subjectStats(c).filter(function(s){ return s.n > 0; });
+    var byAvg = stats.slice().sort(function(a, b){ return b.avg - a.avg; });
+    var best = byAvg[0], worst = byAvg[byAvg.length - 1];
+    var bySd = stats.slice().sort(function(a, b){ return b.sd - a.sd; });
+
+    var top = sts.slice().sort(function(a, b){ return b.total - a.total; })[0];
+    var low = sts.slice().sort(function(a, b){ return a.total - b.total; })[0];
+
+    var L = [];
+    L.push('【总体情况】');
+    L.push('本次共 ' + sts.length + ' 名学生、' + subs.length + ' 个科目参加统计，有效成绩 ' + all.length + ' 条。全科平均 ' +
+           avg.toFixed(1) + ' 分，及格率 ' + pct(passN, all.length) + '（' + passN + '/' + all.length +
+           '），优秀率 ' + pct(greatN, all.length) + '（≥' + c.great + ' 分）。');
+    L.push('');
+    L.push('【分科表现】');
+    stats.forEach(function(s){
+      L.push('· ' + s.name + '：平均 ' + fmt(s.avg) + ' 分，最高 ' + fmt(s.hi) + '（' + s.hiN +
+             '），最低 ' + fmt(s.lo) + '（' + s.loN + '），及格率 ' + s.passRate +
+             '，标准差 ' + fmt(s.sd) + '。');
+    });
+    if (stats.length > 1 && best && worst){
+      L.push('综合来看，' + best.name + '平均最高（' + fmt(best.avg) + ' 分），' + worst.name +
+             '相对薄弱（' + fmt(worst.avg) + ' 分），后续可在' + worst.name + '上适当增加练习密度。');
+    }
+    if (bySd.length && bySd[0].sd > 12){
+      L.push(bySd[0].name + '标准差达 ' + fmt(bySd[0].sd) +
+             '，说明该科学生差距较大，建议采用分层任务，兼顾学困生与学优生。');
+    }
+    L.push('');
+    L.push('【个体情况】');
+    if (top) L.push('· 总分第一：' + top.name + '，' + top.total + ' 分（平均 ' + fmt(top.avg) + ' 分）。');
+    if (low) L.push('· 总分靠后：' + low.name + '，' + low.total + ' 分（平均 ' + fmt(low.avg) + ' 分）。');
+
+    var multi = [], single = [];
+    sts.forEach(function(st){
+      var fails = subs.filter(function(s){
+        return st.scores[s] !== null && st.scores[s] < c.pass;
+      });
+      if (fails.length >= 2) multi.push(st.name + '（' + fails.join('、') + '）');
+      else if (fails.length === 1) single.push(st.name + ' ' + fails[0]);
+    });
+    if (multi.length)  L.push('· 多科不及格，建议优先约谈：' + multi.join('；') + '。');
+    if (single.length) L.push('· 单科不及格，需针对性补弱：' + single.join('；') + '。');
+    if (!multi.length && !single.length) L.push('· 全体及格，本次无需要特别补弱的对象。');
+
+    L.push('');
+    L.push('【下一步建议】');
+    if (worst) L.push('1. 针对' + worst.name + '的薄弱知识点安排一次专项复习，配合错题重做。');
+    if (multi.length) L.push('2. 对多科不及格的学生建立一对一帮扶，先补齐基础再跟进新课。');
+    L.push('3. 课堂提问与练习有意识地向学困生倾斜，及时给予正向反馈。');
+
+    return esc(L.join('\n'));
+  }
+
+  /* ---------- 主渲染 ---------- */
+  function render(){
+    var c = cfg();
+    var res = parseTable($('input').value);
+
+    if (!res || !res.students.length){
+      S.res = null;
+      $('overview').innerHTML = '';
+      ['secSubject','secDist','secTable','secCare','secReport'].forEach(function(id){
+        $(id).style.display = 'none';
+      });
+      $('secDist').insertAdjacentHTML('beforebegin', '');
+      var tip = $('tipEmpty');
+      if (tip) tip.parentNode.removeChild(tip);
+      var box = document.createElement('div');
+      box.className = 'empty';
+      box.id = 'tipEmpty';
+      box.textContent = '在左边粘贴成绩表，然后点「统计」。格式：第一列姓名，后面每列一个科目。';
+      $('run').parentNode.insertBefore(box, $('run').parentNode.firstChild);
+      return;
+    }
+
+    var tip2 = $('tipEmpty');
+    if (tip2) tip2.parentNode.removeChild(tip2);
+
+    S.res = res;
+    computeRanks();
+
+    if (S.band !== '__all__' && res.subjects.indexOf(S.band) === -1){
+      S.band = '__all__';
+    }
+    if (S.sortKey !== 'rank' && S.sortKey !== 'name' && S.sortKey !== 'total' &&
+        S.sortKey !== 'avg' && res.subjects.indexOf(S.sortKey) === -1){
+      S.sortKey = 'rank';
+    }
+
+    $('overview').innerHTML  = overviewHTML(c);
+    $('subjects').innerHTML  = subjectsHTML(c);
+    $('bandTabs').innerHTML  = bandTabsHTML();
+    $('bars').innerHTML      = barsHTML(c);
+    $('table').innerHTML     = tableHTML(c);
+    $('care').innerHTML      = careHTML(c);
+    $('reportText').innerHTML = reportHTML(c);
+
+    ['secSubject','secDist','secTable','secCare'].forEach(function(id){
+      $(id).style.display = '';
+    });
+  }
+
+  /* ---------- 导出 ---------- */
   function exportCSV(){
-    var rows = parse($('input').value);
-    if(!rows.length){ return; }
-    var csv = '\uFEFF姓名,成绩\n' + rows.map(function(r){
-      return '"' + r.name + '",' + r.score;
-    }).join('\n');
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    if (!S.res) return;
+    var subs = S.res.subjects;
+    var head = ['排名', '姓名'].concat(subs).concat(['总分', '平均分', '薄弱科目']);
+    var lines = [head.map(q).join(',')];
+    S.res.students.slice().sort(function(a, b){ return a.rank - b.rank; }).forEach(function(st){
+      var weak = subs.filter(function(s){
+        return st.scores[s] !== null && st.scores[s] < cfg().pass;
+      });
+      var row = [st.rank, st.name].concat(subs.map(function(s){
+        return st.scores[s] === null ? '缺考' : st.scores[s];
+      })).concat([st.total, st.avg.toFixed(1), weak.length ? weak.join('、') : '无']);
+      lines.push(row.map(q).join(','));
+    });
+    var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = '成绩统计.csv';
@@ -183,14 +662,73 @@
     a.click();
     document.body.removeChild(a);
   }
+  function q(v){
+    return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  }
 
-  var demo = ['张三 92','李四 78','王五 55','赵六 88','孙七 95','周八 67','吴九 73','郑十 81','冯一 59','陈二 86'];
+  /* ---------- 示例数据 ---------- */
+  var DEMO = [
+    '姓名\t语文\t数学\t英语',
+    '张明轩\t92\t88\t95',
+    '李思远\t78\t95\t82',
+    '王雨欣\t88\t76\t91',
+    '赵子涵\t65\t72\t68',
+    '刘嘉怡\t95\t89\t93',
+    '陈宇航\t58\t81\t74',
+    '杨欣怡\t82\t68\t79',
+    '周文博\t71\t92\t66',
+    '吴静怡\t90\t85\t88',
+    '徐浩然\t55\t63\t59',
+    '孙佳琪\t86\t79\t84',
+    '郑天佑\t76\t58\t71'
+  ].join('\n');
 
+  /* ---------- 事件绑定 ---------- */
   $('run').addEventListener('click', render);
   $('csv').addEventListener('click', exportCSV);
-  $('demo').addEventListener('click', function(){ $('input').value = demo.join('\n'); render(); });
-  $('clear').addEventListener('click', function(){ $('input').value = ''; render(); });
+  $('demo').addEventListener('click', function(){
+    $('input').value = DEMO;
+    S.band = '__all__';
+    S.sortKey = 'rank';
+    S.sortDir = 1;
+    render();
+  });
+  $('clear').addEventListener('click', function(){
+    $('input').value = '';
+    render();
+  });
+  $('report').addEventListener('click', function(){
+    if (!S.res){ render(); }
+    if (!S.res){ alert('先粘贴成绩再生成分析。'); return; }
+    $('secReport').style.display = '';
+    $('secReport').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   $('input').addEventListener('input', render);
+  ['full','pass','great'].forEach(function(id){
+    $(id).addEventListener('input', render);
+  });
+
+  $('bandTabs').addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.tab') : null;
+    if (!b) return;
+    S.band = b.getAttribute('data-band');
+    $('bandTabs').innerHTML = bandTabsHTML();
+    $('bars').innerHTML = barsHTML(cfg());
+  });
+
+  $('table').addEventListener('click', function(e){
+    var t = e.target.closest ? e.target.closest('th') : null;
+    if (!t) return;
+    var k = t.getAttribute('data-k');
+    if (!k) return;
+    if (S.sortKey === k){ S.sortDir = -S.sortDir; }
+    else { S.sortKey = k; S.sortDir = (k === 'name' || k === 'rank') ? 1 : -1; }
+    $('table').innerHTML = tableHTML(cfg());
+  });
+
+  /* 默认载入示例，打开即可用 */
+  $('input').value = DEMO;
+  render();
 })();
 </script>
 

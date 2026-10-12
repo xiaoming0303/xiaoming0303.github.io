@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>随机点名小工具</title>
+<title>随机点名工具</title>
 <style>
   :root{
     --bg:#ffffff;--surface:#f6f7f9;--text:#1b1f24;--muted:#5b6470;
@@ -12,101 +12,142 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
-    color:var(--text);background:var(--bg);line-height:1.7;
-    padding:26px 22px 36px;-webkit-font-smoothing:antialiased;
+    color:var(--text);background:var(--bg);line-height:1.7;font-size:14px;
+    padding:24px 20px 40px;-webkit-font-smoothing:antialiased;
   }
-  h1{font-size:22px;font-weight:600;letter-spacing:-.01em}
-  .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  h1{font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+  h2{font-size:14.5px;font-weight:600;margin-bottom:10px}
   .stage{
-    margin-top:20px;border:1px solid var(--line);border-radius:16px;background:var(--surface);
-    min-height:172px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:26px 20px;text-align:center;
+    margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface);
+    min-height:196px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:30px 20px;text-align:center;transition:background .2s,border-color .2s;
   }
-  .stage .who{font-size:40px;font-weight:500;letter-spacing:-.02em;line-height:1.35;word-break:break-all}
-  .stage .tip{font-size:13px;color:var(--muted);margin-top:8px}
+  .stage.roll{background:var(--accent-soft);border-color:#c3cee8}
+  .stage .who{
+    font-size:44px;font-weight:500;letter-spacing:-.02em;line-height:1.4;
+    word-break:break-all;transition:color .15s;
+  }
   .stage.roll .who{color:var(--accent)}
-  .picked{
-    margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  .stage .tip{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .meta{margin-top:12px;font-size:12px;color:var(--muted);display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .meta b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+  .picked{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .picked span{
+    font-size:12.5px;background:var(--accent-soft);color:var(--accent);
+    border-radius:999px;padding:3px 11px;
   }
-  .picked span{font-size:13px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 11px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+  .picked span i{font-style:normal;opacity:.65;margin-right:4px}
+  .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;align-items:center}
   button{
-    font:inherit;font-size:14px;padding:9px 18px;border-radius:10px;cursor:pointer;
+    font:inherit;font-size:13px;padding:8px 15px;border-radius:9px;cursor:pointer;
     border:1px solid var(--line);background:#fff;color:var(--text);transition:.16s;
   }
   button:hover{border-color:#c3cee8;color:var(--accent)}
-  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;min-width:112px}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;min-width:108px}
   button.primary:hover{background:#2450c4;color:#fff}
-  .names{margin-top:16px}
+  .names{margin-top:22px}
   textarea{
-    width:100%;min-height:132px;resize:vertical;padding:12px 14px;font-size:13px;
+    width:100%;min-height:150px;resize:vertical;padding:11px 13px;font-size:12.5px;
     font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.8;
     border:1px solid var(--line);border-radius:10px;outline:none;color:var(--text);
   }
   textarea:focus{border-color:var(--accent)}
-  .hintline{font-size:12px;color:var(--muted);margin-top:8px}
+  .hintline{font-size:11.5px;color:var(--muted);margin-top:7px}
+  .hintline code{background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px}
   .kbd{
     font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;
     border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--muted);
   }
+  .opt{
+    font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px;
+  }
+  .opt input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent)}
+  .opt input[type=number]{
+    width:56px;padding:5px 8px;font:inherit;font-size:12.5px;border:1px solid var(--line);
+    border-radius:8px;outline:none;color:var(--text);text-align:center;
+  }
+  .opt input[type=number]:focus{border-color:var(--accent)}
+  .hdrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  @media (max-width:720px){ body{padding:18px 14px 32px} .stage .who{font-size:34px} }
 </style>
 </head>
 <body>
 
-<h1>随机点名小工具</h1>
-<p class="sub">粘贴名单后按 <span class="kbd">空格</span> 开始 / 停止</p>
+<h1>随机点名工具</h1>
+<p class="sub">已内置示例班级名单，直接点「开始」就能用 · 按 <span class="kbd">空格</span> 也可开始 / 停止</p>
 
 <div class="stage" id="stage">
   <div class="who" id="who">准备就绪</div>
-  <div class="tip" id="tip">在下方粘贴学生名单</div>
+  <div class="tip" id="tip">点「开始」或按空格键</div>
+  <div class="meta" id="meta"></div>
 </div>
 
 <div id="usedBox"></div>
 
 <div class="row">
   <button class="primary" id="toggle">开始</button>
-  <button id="reset">重置</button>
-  <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px">
-    <input type="checkbox" id="norepeat" checked style="width:15px;height:15px;accent-color:var(--accent)">
-    不重复抽取
-  </label>
-  <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px">
-    一次抽
-    <input type="number" id="count" value="1" min="1" max="50" style="width:58px;padding:6px 8px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;outline:none">
-    人
-  </label>
+  <button id="undo">撤销上一次</button>
+  <button id="reset">重置记录</button>
+  <button id="demo">载入示例名单</button>
+  <button id="clear">清空名单</button>
+  <label class="opt"><input type="checkbox" id="norepeat" checked> 不重复抽取</label>
+  <label class="opt">一次抽 <input type="number" id="count" value="1" min="1" max="50"> 人</label>
 </div>
 
 <div class="names">
-  <textarea id="input" placeholder="张三&#10;李四&#10;王五&#10;赵六"></textarea>
-  <p class="hintline">每行一个名字，也可以用逗号分隔</p>
+  <div class="hdrow"><h2>班级名单</h2><span class="hintline">每行一个，也可用逗号分隔</span></div>
+  <textarea id="input" spellcheck="false" placeholder="张三&#10;李四&#10;王五"></textarea>
+  <p class="hintline">换成自己的名单：全选 → 粘贴 → 点「重置记录」清空已抽记录</p>
 </div>
 
 <script>
 (function(){
   'use strict';
+
   var $ = function(id){ return document.getElementById(id); };
-  var timer = null, running = false, used = {};
+
+  /* ---------- 默认名单（示例班级，40 人） ---------- */
+  var DEMO = [
+    '张明轩','李思远','王雨欣','赵子涵','刘嘉怡',
+    '陈宇航','杨欣怡','周文博','吴静怡','徐浩然',
+    '孙佳琪','郑天佑','马晓彤','朱俊杰','胡雅静',
+    '郭子豪','何思颖','高鹏飞','林婉如','罗嘉豪',
+    '梁诗涵','宋明达','唐雨薇','许泽楷','韩雪松',
+    '冯丽娟','邓俊熙','曹欣妍','彭志强','曾紫琳',
+    '萧逸辰','田悦然','董宇航','袁梦琪','潘思远',
+    '于海涛','蒋雨柔','蔡明辉','余佳怡','杜文昊'
+  ].join('\n');
+
+  var timer = null, running = false;
+  var used = {};        // 已抽过的名字
+  var history = [];     // 每次抽中的名单，用于撤销
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   function names(){
-    return $('input').value.split(/\r?\n|,|，|\s+/)
+    return $('input').value.split(/\r?\n|,|，|、|\s+/)
       .map(function(s){ return s.trim(); })
       .filter(function(s){ return s.length; });
   }
 
   function remaining(){
     var all = names();
-    if(!$('norepeat').checked){ return all.slice(); }
+    if (!$('norepeat').checked){ return all.slice(); }
     var left = all.filter(function(n){ return !used[n]; });
-    return left.length ? left : null;
+    return left.length ? left : [];
   }
 
   function pickSome(n){
     var pool = remaining();
-    if(!pool){ return null; }
+    if (!pool.length){ return []; }
     var out = [], copy = pool.slice();
     n = Math.min(n, copy.length);
-    for(var i = 0; i < n; i++){
+    for (var i = 0; i < n; i++){
       var idx = Math.floor(Math.random() * copy.length);
       out.push(copy.splice(idx, 1)[0]);
     }
@@ -114,69 +155,133 @@
   }
 
   function showList(arr){
-    $('who').innerHTML = arr.join('　');
+    $('who').innerHTML = arr.map(esc).join('　');
   }
 
-  function markUsed(arr){
-    arr.forEach(function(n){ used[n] = 1; });
+  function renderMeta(){
+    var all = names().length;
+    var left = $('norepeat').checked ? remaining().length : all;
+    $('meta').innerHTML =
+      '<span>总人数 <b>' + all + '</b></span>' +
+      '<span>剩余 <b>' + left + '</b></span>' +
+      '<span>已点 <b>' + history.reduce(function(a, x){ return a + x.length; }, 0) + '</b></span>';
   }
 
   function renderUsed(){
-    var ks = Object.keys(used);
     var box = $('usedBox');
-    if(!box){ return; }
-    box.innerHTML = ks.length
-      ? '<div class="picked">' + ks.map(function(n){ return '<span>' + n + '</span>'; }).join('') + '</div>'
-      : '';
+    if (!box) return;
+    if (!history.length){ box.innerHTML = ''; return; }
+    var html = '', n = 0;
+    history.forEach(function(arr){
+      arr.forEach(function(nm){
+        n++;
+        html += '<span><i>' + n + '</i>' + esc(nm) + '</span>';
+      });
+    });
+    box.innerHTML = '<div class="picked">' + html + '</div>';
   }
 
   function start(){
     var pool = remaining();
-    if(!pool){ $('tip').textContent = '所有人都已点过，点「重置」重新开始'; return; }
+    if (!pool.length){
+      $('tip').textContent = '所有人都已点过，点「重置记录」重新开始';
+      return;
+    }
     running = true;
     $('toggle').textContent = '停止';
     $('stage').classList.add('roll');
-    $('tip').textContent = '滚动中…';
+    $('tip').textContent = '滚动中…（空格停止）';
     timer = setInterval(function(){
       showList([pool[Math.floor(Math.random() * pool.length)]]);
     }, 62);
   }
 
   function stop(){
-    if(timer){ clearInterval(timer); timer = null; }
+    if (timer){ clearInterval(timer); timer = null; }
     running = false;
     $('toggle').textContent = '开始';
     $('stage').classList.remove('roll');
+
     var n = Math.max(1, Math.min(50, parseInt($('count').value, 10) || 1));
     var got = pickSome(n);
-    if(!got){ $('tip').textContent = '所有人都已点过，点「重置」重新开始'; return; }
-    markUsed(got);
+    if (!got.length){
+      $('tip').textContent = '所有人都已点过，点「重置记录」重新开始';
+      return;
+    }
+    got.forEach(function(nm){ used[nm] = 1; });
+    history.push(got);
     showList(got);
-    $('tip').textContent = '本轮：' + got.join('、');
+    $('tip').textContent = '本轮抽中：' + got.join('、');
     renderUsed();
+    renderMeta();
   }
 
   function toggle(){
-    if(running){ stop(); } else { start(); }
+    if (running){ stop(); } else { start(); }
   }
 
   $('toggle').addEventListener('click', toggle);
+
+  $('undo').addEventListener('click', function(){
+    if (running){ stop(); return; }
+    if (!history.length){ $('tip').textContent = '还没有抽取记录'; return; }
+    var last = history.pop();
+    last.forEach(function(nm){ delete used[nm]; });
+    $('who').textContent = '准备就绪';
+    $('tip').textContent = '已撤销：' + last.join('、');
+    renderUsed();
+    renderMeta();
+  });
+
   $('reset').addEventListener('click', function(){
-    used = {};
-    if(running){ stop(); }
+    if (running){ stop(); }
+    used = {}; history = [];
     $('who').textContent = '准备就绪';
     $('tip').textContent = '已重置，可以重新开始';
     renderUsed();
+    renderMeta();
   });
+
+  $('clear').addEventListener('click', function(){
+    if (running){ stop(); }
+    $('input').value = '';
+    used = {}; history = [];
+    $('who').textContent = '准备就绪';
+    $('tip').textContent = '名单已清空';
+    renderUsed();
+    renderMeta();
+  });
+
+  $('demo').addEventListener('click', function(){
+    if (running){ stop(); }
+    $('input').value = DEMO;
+    used = {}; history = [];
+    $('who').textContent = '准备就绪';
+    $('tip').textContent = '已载入示例班级（40 人）';
+    renderUsed();
+    renderMeta();
+  });
+
+  $('input').addEventListener('input', function(){
+    used = {}; history = [];
+    renderUsed();
+    renderMeta();
+  });
+  $('norepeat').addEventListener('change', renderMeta);
+
   document.addEventListener('keydown', function(e){
-    if(e.code === 'Space' || e.key === ' '){
+    if (e.code === 'Space' || e.key === ' '){
       var t = e.target && e.target.tagName;
-      if(t === 'TEXTAREA' || t === 'INPUT'){ return; }
+      if (t === 'TEXTAREA' || t === 'INPUT'){ return; }
       e.preventDefault();
       toggle();
     }
   });
-  if(names().length){ $('tip').textContent = '按空格或点「开始」'; }
+
+  /* 打开即载入默认名单 */
+  $('input').value = DEMO;
+  renderUsed();
+  renderMeta();
 })();
 </script>
 

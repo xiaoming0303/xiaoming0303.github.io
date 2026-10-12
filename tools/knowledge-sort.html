@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>知识分类小游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        /* 游戏区域 */
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* 分类筐区域 */
+        .baskets {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 220px;
+        }
+
+        .basket {
+            background-color: white;
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 140px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .basket.active {
+            border-color: #2ecc71;
+            background-color: #f8fffa;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+
+        .basket h3 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .basket .content {
+            min-height: 70px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 卡片区域 */
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            min-width: 280px;
+            flex: 1;
+            justify-content: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            padding: 12px 18px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .card:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .card.dragging {
+            opacity: 0.8;
+            transform: scale(1.05);
+            cursor: grabbing;
+            z-index: 1000;
+        }
+
+        /* 已分类的卡片样式（不可再次拖拽） */
+        .card.categorized {
+            cursor: default;
+            background-color: #2ecc71;
+            pointer-events: none;
+        }
+
+        /* 自定义区域 */
+        .customize-area {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+
+        .customize-area h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-reset {
+            background-color: #e74c3c;
+        }
+
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+
+        /* 提示和结果区域 */
+        .feedback {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            height: 30px;
+            line-height: 30px;
+            margin: 5px 0;
+        }
+
+        .success {
+            color: #2ecc71;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #34495e;
+            margin: 5px 0;
+            font-weight: 600;
+        }
+
+        /* 适配移动端 */
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .baskets {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .basket {
+                min-width: 180px;
+                flex: 1;
+            }
+            
+            .cards {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>知识分类小游戏</h1>
+            <p>将知识卡片拖放到对应的分类筐中，分类正确即可得分！</p>
+        </div>
+
+        <!-- 游戏区域 -->
+        <div class="game-area">
+            <!-- 分类筐 -->
+            <div class="baskets">
+                <div class="basket" id="basket1" data-category="category1">
+                    <h3 id="basket1-title">语文</h3>
+                    <div class="content" id="basket1-content"></div>
+                </div>
+                <div class="basket" id="basket2" data-category="category2">
+                    <h3 id="basket2-title">数学</h3>
+                    <div class="content" id="basket2-content"></div>
+                </div>
+                <div class="basket" id="basket3" data-category="category3">
+                    <h3 id="basket3-title">英语</h3>
+                    <div class="content" id="basket3-content"></div>
+                </div>
+            </div>
+
+            <!-- 卡片区域 -->
+            <div class="cards" id="cards-container">
+                <!-- 卡片将通过JS动态生成 -->
+            </div>
+        </div>
+
+        <!-- 反馈区域 -->
+        <div class="feedback" id="feedback"></div>
+        <div class="score">得分: <span id="score">0</span></div>
+
+        <!-- 自定义区域 -->
+        <div class="customize-area">
+            <h2>自定义游戏内容</h2>
+            
+            <div class="form-group">
+                <label for="category-titles">分类名称（用逗号分隔，最多3个）</label>
+                <input type="text" id="category-titles" placeholder="例如：语文,数学,英语" value="语文,数学,英语">
+            </div>
+            
+            <div class="form-group">
+                <label for="card-contents">卡片内容（每行一个，格式：内容|分类编号）</label>
+                <textarea id="card-contents" placeholder="例如：
+李白|1
+勾股定理|2
+apple|3
+唐诗|1
+几何|2
+语法|3">李白|1
+勾股定理|2
+apple|3
+唐诗|1
+几何|2
+语法|3
+杜甫|1
+代数|2
+vocabulary|3</textarea>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="apply-custom">应用自定义内容</button>
+                <button class="btn btn-reset" id="reset-game">重置游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let score = 0;
+        let currentCards = [];
+        let draggedCard = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // 默认游戏数据
+        const defaultCategories = ["语文", "数学", "英语"];
+        const defaultCards = [
+            { content: "李白", category: "category1" },
+            { content: "勾股定理", category: "category2" },
+            { content: "apple", category: "category3" },
+            { content: "唐诗", category: "category1" },
+            { content: "几何", category: "category2" },
+            { content: "语法", category: "category3" },
+            { content: "杜甫", category: "category1" },
+            { content: "代数", category: "category2" },
+            { content: "vocabulary", category: "category3" }
+        ];
+
+        // 初始化游戏
+        function initGame(cards = defaultCards, categories = defaultCategories) {
+            try {
+                // 重置分数
+                score = 0;
+                document.getElementById("score").textContent = score;
+                document.getElementById("feedback").textContent = "";
+                
+                // 更新分类标题
+                updateCategoryTitles(categories);
+                
+                // 清空卡片容器和分类筐
+                document.getElementById("cards-container").innerHTML = "";
+                document.querySelectorAll(".basket .content").forEach(container => {
+                    container.innerHTML = "";
+                });
+                
+                // 保存当前卡片数据
+                currentCards = JSON.parse(JSON.stringify(cards));
+                
+                // 打乱卡片顺序
+                shuffleArray(currentCards);
+                
+                // 生成卡片
+                renderCards(currentCards);
+                
+                // 初始化拖拽事件
+                setupDragEvents();
+                
+            } catch (error) {
+                console.error("初始化游戏失败:", error);
+                document.getElementById("feedback").textContent = "游戏初始化出错，请刷新页面";
+                document.getElementById("feedback").className = "feedback error";
+            }
+        }
+
+        // 更新分类标题
+        function updateCategoryTitles(titles) {
+            for (let i = 0; i < 3; i++) {
+                const titleElement = document.getElementById(`basket${i+1}-title`);
+                titleElement.textContent = titles[i] || `分类${i+1}`;
+            }
+        }
+
+        // 渲染卡片
+        function renderCards(cards) {
+            const container = document.getElementById("cards-container");
+            container.innerHTML = ""; // 清空容器
+            
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement("div");
+                cardElement.className = "card";
+                cardElement.textContent = card.content;
+                cardElement.dataset.category = card.category;
+                cardElement.dataset.index = index;
+                
+                // 添加触摸事件支持（移动端）
+                cardElement.addEventListener("touchstart", handleTouchStart, { passive: true });
+                cardElement.addEventListener("touchmove", handleTouchMove, { passive: true });
+                cardElement.addEventListener("touchend", handleTouchEnd);
+                
+                container.appendChild(cardElement);
+            });
+        }
+
+        // 设置拖拽事件（PC端）
+        function setupDragEvents() {
+            // 鼠标按下
+            document.addEventListener("mousedown", handleMouseDown);
+            // 鼠标移动
+            document.addEventListener("mousemove", handleMouseMove);
+            // 鼠标抬起
+            document.addEventListener("mouseup", handleMouseUp);
+            
+            // 分类筐悬停效果
+            document.querySelectorAll(".basket").forEach(basket => {
+                basket.addEventListener("mouseenter", () => {
+                    if (draggedCard) basket.classList.add("active");
+                });
+                
+                basket.addEventListener("mouseleave", () => {
+                    basket.classList.remove("active");
+                });
+            });
+        }
+
+        // 鼠标按下事件
+        function handleMouseDown(e) {
+            const card = e.target.closest(".card");
+            if (card && !card.classList.contains("categorized")) {
+                draggedCard = card;
+                draggedCard.classList.add("dragging");
+                
+                // 计算鼠标相对于卡片的偏移
+                const rect = draggedCard.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                
+                // 设置初始定位
+                draggedCard.style.position = "absolute";
+                draggedCard.style.width = `${rect.width}px`;
+                draggedCard.style.height = `${rect.height}px`;
+            }
+        }
+
+        // 鼠标移动事件
+        function handleMouseMove(e) {
+            if (draggedCard) {
+                // 更新卡片位置
+                draggedCard.style.left = `${e.clientX - offsetX}px`;
+                draggedCard.style.top = `${e.clientY - offsetY}px`;
+                
+                // 检查是否悬停在分类筐上
+                checkHoveredBasket(e.clientX, e.clientY);
+            }
+        }
+
+        // 鼠标抬起事件
+        function handleMouseUp(e) {
+            if (draggedCard) {
+                // 移除拖拽样式
+                draggedCard.classList.remove("dragging");
+                
+                // 检查落点
+                const targetBasket = getBasketAtPosition(e.clientX, e.clientY);
+                if (targetBasket) {
+                    checkAnswer(draggedCard, targetBasket);
+                } else {
+                    // 放回原位置
+                    resetCardPosition(draggedCard);
+                }
+                
+                // 重置拖拽状态
+                draggedCard.style = "";
+                draggedCard = null;
+                offsetX = 0;
+                offsetY = 0;
+                
+                // 移除所有分类筐激活状态
+                document.querySelectorAll(".basket").forEach(b => b.classList.remove("active"));
+            }
+        }
+
+        // 触摸开始（移动端）
+        function handleTouchStart(e) {
+            const card = e.target.closest(".card");
+            if (card && !card.classList.contains("categorized")) {
+                draggedCard = card;
+                draggedCard.classList.add("dragging");
+                
+                const touch = e.touches[0];
+                const rect = draggedCard.getBoundingClientRect();
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
+                
+                draggedCard.style.position = "absolute";
+                draggedCard.style.width = `${rect.width}px`;
+                draggedCard.style.height = `${rect.height}px`;
+            }
+        }
+
+        // 触摸移动（移动端）
+        function handleTouchMove(e) {
+            if (draggedCard) {
+                const touch = e.touches[0];
+                draggedCard.style.left = `${touch.clientX - offsetX}px`;
+                draggedCard.style.top = `${touch.clientY - offsetY}px`;
+                
+                checkHoveredBasket(touch.clientX, touch.clientY);
+            }
+        }
+
+        // 触摸结束（移动端）
+        function handleTouchEnd(e) {
+            if (draggedCard) {
+                draggedCard.classList.remove("dragging");
+                
+                const touch = e.changedTouches[0];
+                const targetBasket = getBasketAtPosition(touch.clientX, touch.clientY);
+                
+                if (targetBasket) {
+                    checkAnswer(draggedCard, targetBasket);
+                } else {
+                    resetCardPosition(draggedCard);
+                }
+                
+                draggedCard.style = "";
+                draggedCard = null;
+                offsetX = 0;
+                offsetY = 0;
+                
+                document.querySelectorAll(".basket").forEach(b => b.classList.remove("active"));
+            }
+        }
+
+        // 检查悬停的分类筐
+        function checkHoveredBasket(x, y) {
+            document.querySelectorAll(".basket").forEach(basket => {
+                const rect = basket.getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    basket.classList.add("active");
+                } else {
+                    basket.classList.remove("active");
+                }
+            });
+        }
+
+        // 获取指定位置的分类筐
+        function getBasketAtPosition(x, y) {
+            const elements = document.elementsFromPoint(x, y);
+            for (let elem of elements) {
+                if (elem.classList.contains("basket")) {
+                    return elem;
+                }
+                const parentBasket = elem.closest(".basket");
+                if (parentBasket) return parentBasket;
+            }
+            return null;
+        }
+
+        // 重置卡片位置
+        function resetCardPosition(card) {
+            document.getElementById("cards-container").appendChild(card);
+        }
+
+        // 检查答案是否正确
+        function checkAnswer(card, basket) {
+            try {
+                const cardCategory = card.dataset.category;
+                const basketCategory = basket.dataset.category;
+                const feedback = document.getElementById("feedback");
+                
+                if (cardCategory === basketCategory) {
+                    // 分类正确
+                    score += 10;
+                    feedback.textContent = "分类正确！+10分";
+                    feedback.className = "feedback success";
+                    
+                    // 添加到分类筐并标记为已分类
+                    card.classList.add("categorized");
+                    basket.querySelector(".content").appendChild(card);
+                    
+                } else {
+                    // 分类错误
+                    score = Math.max(0, score - 5);
+                    feedback.textContent = "分类错误！-5分";
+                    feedback.className = "feedback error";
+                    
+                    // 放回卡片区域
+                    document.getElementById("cards-container").appendChild(card);
+                }
+                
+                // 更新分数
+                document.getElementById("score").textContent = score;
+                
+                // 3秒后清除提示
+                setTimeout(() => {
+                    feedback.textContent = "";
+                    feedback.className = "feedback";
+                }, 3000);
+                
+            } catch (error) {
+                console.error("检查答案失败:", error);
+                resetCardPosition(card);
+            }
+        }
+
+        // 打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 解析自定义内容
+        function parseCustomContent() {
+            const categoryInput = document.getElementById("category-titles").value.trim();
+            const cardInput = document.getElementById("card-contents").value.trim();
+            
+            // 解析分类标题
+            const categories = categoryInput 
+                ? categoryInput.split(",").map(t => t.trim()).filter(t => t) 
+                : defaultCategories;
+            
+            // 解析卡片内容
+            const cards = [];
+            if (cardInput) {
+                const lines = cardInput.split("\n").filter(line => line.trim());
+                
+                lines.forEach(line => {
+                    const parts = line.split("|").map(part => part.trim());
+                    if (parts.length === 2) {
+                        const [content, categoryNum] = parts;
+                        if (content && !isNaN(categoryNum) && categoryNum >= 1 && categoryNum <= 3) {
+                            cards.push({
+                                content: content,
+                                category: `category${categoryNum}`
+                            });
+                        }
+                    }
+                });
+            }
+            
+            return {
+                categories: categories.slice(0, 3),
+                cards: cards.length ? cards : defaultCards
+            };
+        }
+
+        // 页面加载完成初始化
+        document.addEventListener("DOMContentLoaded", () => {
+            // 初始化游戏
+            initGame();
+            
+            // 应用自定义内容
+            document.getElementById("apply-custom").addEventListener("click", () => {
+                try {
+                    const { categories, cards } = parseCustomContent();
+                    initGame(cards, categories);
+                    alert("自定义内容已成功应用！");
+                } catch (error) {
+                    console.error("应用自定义内容失败:", error);
+                    alert("自定义内容格式有误，请检查后重试！");
+                }
+            });
+            
+            // 重置游戏
+            document.getElementById("reset-game").addEventListener("click", () => {
+                initGame();
+                // 重置输入框为默认值
+                document.getElementById("category-titles").value = "语文,数学,英语";
+                document.getElementById("card-contents").value = `李白|1
+勾股定理|2
+apple|3
+唐诗|1
+几何|2
+语法|3
+杜甫|1
+代数|2
+vocabulary|3`;
+            });
+        });
+
+        // 防止拖拽时选中文字
+        document.addEventListener("selectstart", e => {
+            if (draggedCard) e.preventDefault();
+        });
+    </script>
+</body>
+</html>
