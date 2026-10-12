@@ -15,9 +15,9 @@ const SITE = {
   hero: {
     name: '明路路',
     avatar: 'assets/zhaopian.jpg',                       // 证件照/形象照，建议正方形，例如 'assets/avatar.jpg'
-    target: '求职意向：初中信息技术教师',
+    target: '求职意向：信息技术教师',
     tagline: '用学生玩得起来的方式，讲清楚技术的本质',
-    intro: '我是安徽师范大学现代教育技术（师范）专业应届毕业生，喜欢把抽象的信息技术知识拆成学生能亲手完成的小作品。相信一节好课的标准不是讲了多少，而是学生下课后还想继续做。',
+    intro: '我是安徽师范大学现代教育技术（师范）专业应届毕业生，喜欢把抽象的信息技术知识拆成学生能亲手完成的小作品。',
     primaryBtn:  { label: '查看我的作品', href: '#teaching' },
     secondaryBtn:{ label: '联系我',       href: '#contact'  }
   },
