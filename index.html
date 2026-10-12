@@ -41,7 +41,8 @@
 
   /* hero */
   .hero{padding:76px 0 68px}
-  .hero-grid{display:grid;grid-template-columns:1fr 232px;gap:48px;align-items:center}
+  /* 始终左右并排：文字在左，照片在右（窄屏只缩小照片，不堆叠） */
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 232px;gap:48px;align-items:center}
   .badge{
     display:inline-block;font-size:13px;color:var(--accent);
     background:var(--accent-soft);border-radius:999px;padding:5px 14px;margin-bottom:20px;
@@ -195,7 +196,8 @@
   .card .hint.muted .go{color:#8b93a0}
 
   @media (max-width:860px){
-    .hero-grid{grid-template-columns:1fr;gap:28px}
+    /* 注意：hero 保持左右并排，只把照片缩小 */
+    .hero-grid{grid-template-columns:minmax(0,1fr) 150px;gap:26px}
     .avatar{width:150px;height:150px}
     .about-grid{grid-template-columns:1fr;gap:32px}
   }
@@ -203,12 +205,22 @@
     .nav-links{overflow-x:auto;gap:16px}
     .nav-inner{height:56px}
     .hero{padding:52px 0 48px}
-    .hero h1{font-size:31px}
+    .hero h1{font-size:28px}
+    .hero .intro{font-size:14px}
+    .hero-grid{grid-template-columns:minmax(0,1fr) 120px;gap:18px}
+    .avatar{width:120px;height:120px}
+    .btn{padding:9px 16px;font-size:13px}
+    .btn-row{gap:9px;margin-top:22px}
     .hero .tagline{font-size:17px}
     .sec{padding:52px 0}
     .sec h2{font-size:24px}
     .facts{grid-template-columns:1fr}
     .resume-box{padding:26px}
+  }
+  @media (max-width:640px){
+    /* 只有手机等超窄屏才改为上下堆叠 */
+    .hero-grid{grid-template-columns:1fr;gap:22px}
+    .avatar{width:132px;height:132px}
   }
 </style>
 </head>
