@@ -98,7 +98,7 @@ const SITE = {
   coding: {
     eyebrow: 'Creation',
     title: '编程作品',
-    desc: '图形化编程、自制小游戏与教学实用工具，均可在线运行。',
+    desc: '部分图形化编程、自制小游戏与教学实用工具，均可在线运行。',
     items: [
       {
         title: 'Scratch 作品1 · 飞船射击游戏',
