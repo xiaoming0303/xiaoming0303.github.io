@@ -73,7 +73,7 @@ const SITE = {
         files: [
           { name: '课件 PPT', href: 'assets/kj2ppt.pptx', note: 'PPTX' },
           { name: '教学设计', href:'assets/kj2sj.docx',note:'DOCX'},
-          { name: '送餐模拟html', href:'assets/kj2html.html',note:'HTML'},
+          { name: '语音识别技术html', href:'assets/kj2html.html',note:'HTML'},
         ]
       },
       {
@@ -85,7 +85,7 @@ const SITE = {
         files: [
           { name: '课件 PPT',   href: 'assets/kj3ppt.pptx', note: 'PPTX' },
           { name：'教学设计', href:'assets/kj3sj.docx',note:'DOCX'},
-          { name: '送餐模拟html', href:'assets/kj3html.html',note:'HTML'},
+          { name: '智能物联系统html', href:'assets/kj3html.html',note:'HTML'},
         ]
       }
     ]
