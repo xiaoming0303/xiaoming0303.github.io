@@ -128,7 +128,7 @@ const SITE = {
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
         embed: 'tools/diguitree.html',
-        links: [ { label: '源文件下载', href: 'tools/codexiyi.html' } ]
+        links: [ { label: '源文件下载', href: 'tools/diguitree.html' } ]
       },
       {
         title: '成绩统计工具',
@@ -170,31 +170,39 @@ const SITE = {
   opensource: {
     eyebrow: 'Open source',
     title: 'GitHub 项目',
-    desc: '把仓库直接推给对方看，是最直接的能力证明。',
+    desc: ' ',
     githubUser: 'xiaoming0303',
     items: [
       {
-        title: '项目名称一',
-        tag: '主要语言',
-        desc: '一两句话说明这个项目做什么、解决了什么问题、你自己负责哪部分。',
+        title: 'python语法可视化编辑器',
+        tag: '主要语言Python',
+        desc: '学生直接在窗口里修改代码，右侧实时看到变量 / 列表 / 循环 / 分支的执行可视化。',
         cover: '',
         gallery: [],
-        links: [ { label: '代码仓库', href: '' } ]
+        links: [ { label: '代码仓库', href: 'https://github.com/xiaoming0303/code_visualizer' } ]
       },
       {
-        title: '项目名称二',
-        tag: '主要语言',
-        desc: '一两句话说明这个项目做什么、解决了什么问题、你自己负责哪部分。',
+        title: '算法可视化教学工具',
+        tag: '主要语言Python',
+        desc: '面向课堂演示的桌面可视化工具，覆盖四大重点： 排序（冒泡/插入/选择）、二分查找、栈、二叉树遍历。',
         cover: '',
         gallery: [],
-        links: [ { label: '代码仓库', href: '' } ]
+        links: [ { label: '代码仓库', href: 'https://github.com/xiaoming0303/algorithm_visualizer' } ]
+      },
+      {
+        title: '班级学生成绩多维度分析',
+        tag: '主要语言Python',
+        desc: '基于NumPy、Pandas、Matplotlib完成50名学生两学期成绩数据分析。Pandas计算总分、平均分、排名；分组聚合计算各科平均分、优秀率、及格率。透视表对比学生上下学期成绩，计算进步/退步幅度，识别重点学生。计算学科成绩相关系数，分析学科关联性。Matplotlib绘制多类型可视化图表：考试趋势折线图、箱线图、热力图、进步退步对比图等 ',
+        cover: '',
+        gallery: [],
+        links: [ { label: '代码仓库', href: 'https://github.com/xiaoming0303/score-analysis' } ]
       }
     ]
   },
 
   /* ---------- 【六】简历下载 ---------- */
   resume: {
-    title: '想看完整简历？',
+    title: '完整简历在这里',
     desc: '这份线上作品集是简历的补充说明：PDF 简历负责讲清楚经历，这里负责让经历变得可见。',
     // 把 PDF 放进 assets 文件夹，命名 resume.pdf，下面的路径就不用动
     file: 'assets/resume.pdf',
