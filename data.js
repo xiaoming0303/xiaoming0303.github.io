@@ -101,6 +101,26 @@ const SITE = {
     desc: '图形化编程、自制小游戏与教学实用工具，均可在线运行。',
     items: [
       {
+        title: 'Scratch 作品集',
+        tag: 'Scratch · sb3',
+        desc: '飞船射击游戏。',
+        cover: '',
+        gallery: [],
+        // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
+        embed: '',
+        links: [ { label: '源文件下载', href: '' } ]
+      },
+      {
+        title: 'Scratch 作品集（sb3 源文件）',
+        tag: 'Scratch · sb3',
+        desc: '若干原创 Scratch 作品，涵盖动画、交互故事与益智小游戏，均提供可二次编辑的 sb3 源文件。',
+        cover: '',
+        gallery: [],
+        // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
+        embed: '',
+        links: [ { label: '源文件下载', href: '' } ]
+      },
+      {
         title: 'Scratch 作品集（sb3 源文件）',
         tag: 'Scratch · sb3',
         desc: '若干原创 Scratch 作品，涵盖动画、交互故事与益智小游戏，均提供可二次编辑的 sb3 源文件。',
