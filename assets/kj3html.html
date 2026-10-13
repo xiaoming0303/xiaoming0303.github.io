@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园数字气象站 · 智能系统仿真</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    background:#faf6ee;color:#3d3229;min-height:100vh;padding:20px 16px 40px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  h1{font-size:22px;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;font-size:13px;color:#8a7a66;margin-bottom:20px}
+
+  /* ===== 架构图区 ===== */
+  .arch{display:grid;grid-template-columns:1fr 26px 1fr 26px 1fr 26px 1fr;gap:0;align-items:stretch;margin-bottom:8px}
+  .stage{background:linear-gradient(150deg,#f5924e,#ef7d33);border-radius:14px;padding:12px 10px;
+    display:flex;flex-direction:column;gap:8px;transition:box-shadow .25s,transform .25s;position:relative}
+  .stage.active{box-shadow:0 0 0 3px #ffd28f,0 6px 18px rgba(239,125,51,.35);transform:translateY(-3px)}
+  .row{border:1.5px dashed rgba(255,255,255,.75);border-radius:10px;padding:8px 6px;text-align:center;color:#fff}
+  .row .lb{font-size:11px;opacity:.85;letter-spacing:2px}
+  .row .v{font-size:15px;font-weight:700;margin-top:2px}
+  .row.dev{background:rgba(255,255,255,.16);border-style:solid;border-color:rgba(255,255,255,.4)}
+  .arrow{display:flex;align-items:center;justify-content:center;color:#c9bda9;font-size:18px;font-weight:700}
+  .band{display:flex;justify-content:space-between;margin:10px 6px 22px}
+  .band span{flex:1;text-align:center;font-size:12px;color:#fff;background:#ef7d33;border-radius:999px;
+    padding:4px 0;margin:0 4px;font-weight:600}
+  .band span+span{position:relative}
+
+  /* ===== 数据包 ===== */
+  .packet{position:absolute;top:50%;left:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;
+    background:#fff;color:#ef7d33;display:none;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;box-shadow:0 3px 10px rgba(0,0,0,.25);z-index:5}
+  .stage .packet{display:flex;animation:pop .3s}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* ===== OLED 呈现屏 ===== */
+  .screenRow{display:grid;grid-template-columns:250px 1fr;gap:16px;margin-bottom:16px}
+  .oled{background:#1c2430;border-radius:14px;padding:16px;color:#7fe3a1;
+    font-family:"Consolas","Courier New",monospace;text-align:center}
+  .oled .t{font-size:11px;color:#5c7a66;letter-spacing:3px;margin-bottom:8px}
+  .oled .big{font-size:42px;font-weight:700;line-height:1.1}
+  .oled .big small{font-size:14px;font-weight:400}
+  .oled .lvl{display:inline-block;margin-top:8px;font-size:12px;padding:3px 12px;border-radius:999px;
+    background:#2c3a4a;color:#a8e6c3}
+  .oled .lvl.warn{background:#5a3a2a;color:#ffb37f}
+  .bars{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:14px 16px}
+  .bars .t{font-size:13px;color:#8a7a66;margin-bottom:10px}
+  .bars .chart{display:flex;align-items:flex-end;gap:5px;height:86px}
+  .bars .chart i{flex:1;background:linear-gradient(180deg,#f5a45f,#ef7d33);border-radius:3px 3px 0 0;
+    min-height:3px;position:relative;transition:height .4s}
+  .bars .chart i.warn{background:linear-gradient(180deg,#f2705f,#e04b33)}
+  .bars .chart i b{position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    font-size:9px;color:#8a7a66;font-weight:400;font-style:normal}
+
+  /* ===== 控制 & 日志 ===== */
+  .ctrl{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
+  button{border:none;border-radius:10px;padding:10px 22px;font-size:14px;cursor:pointer;
+    font-family:inherit;background:#eadfce;color:#7a6a55;transition:.2s}
+  button:hover{filter:brightness(.96)}
+  button.primary{background:#ef7d33;color:#fff;font-weight:700}
+  button.primary:disabled{opacity:.55;cursor:not-allowed}
+  button.on{background:#3f9d5f;color:#fff}
+  .log{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:12px 16px;
+    height:150px;overflow-y:auto;font-size:12.5px;line-height:1.9}
+  .log p{border-bottom:1px dashed #f0e8d8;padding:1px 0}
+  .log time{color:#b3a48d;font-family:Consolas,monospace;margin-right:8px}
+  .log .st1{color:#d9772f}.log .st4{color:#3f9d5f;font-weight:600}
+  .hint{text-align:center;font-size:12px;color:#b3a48d;margin-top:14px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>校园数字气象站 · 系统仿真</h1>
+  <div class="sub">以风速数据采集为例 —— 观察数据如何经过四个模块流转</div>
+
+  <div class="arch" id="arch">
+    <div class="stage" id="st0"><div class="packet" id="pk0">5.2</div>
+      <div class="row"><div class="lb">功能</div><div class="v">采集数据 · 风速</div></div>
+      <div class="row dev"><div class="lb">设备</div><div class="v">风速传感器</div></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage" id="st1"><div class="packet" id="pk1"></div>
+      <div class="row"><div class="lb">功能</div><div class="v">传输数据</div></div>
+      <div class="row dev"><div class="lb">设备</div><div class="v">路由器 · 网线</div></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage" id="st2"><div class="packet" id="pk2"></div>
+      <div class="row"><div class="lb">功能</div><div class="v">处理数据</div></div>
+      <div class="row dev"><div class="lb">设备</div><div class="v">物联网服务器</div></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage" id="st3"><div class="packet" id="pk3"></div>
+      <div class="row"><div class="lb">功能</div><div class="v">呈现数据</div></div>
+      <div class="row dev"><div class="lb">设备</div><div class="v">平台 · OLED屏</div></div>
+    </div>
+  </div>
+  <div class="band">
+    <span>采集模块</span><span>传输模块</span><span>处理模块</span><span>呈现模块</span>
+  </div>
+
+  <div class="screenRow">
+    <div class="oled">
+      <div class="t">OLED 实时风速</div>
+      <div class="big" id="big">--<small> m/s</small></div>
+      <div class="lvl" id="lvl">等待数据…</div>
+    </div>
+    <div class="bars">
+      <div class="t">最近 12 次采集记录（红色为大风）</div>
+      <div class="chart" id="chart"></div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <button class="primary" id="go">开始采集</button>
+    <button id="auto">自动运行：关</button>
+    <button id="clear">清空记录</button>
+  </div>
+  <div class="log" id="log"></div>
+
+  <div class="hint">点击「开始采集」，跟随数据包走完 采集 → 传输 → 处理 →呈现 的完整流程。<br>
+  「自动运行」每 2.5 秒采集一次，模拟物联网系统的持续工作。</div>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var STAGES=[
+    {log:'st1',msg:'风速传感器采集到 <b>{v} m/s</b>'},
+    {log:'st1',msg:'数据经路由器 / 网线传输中…'},
+    {log:'st1',msg:'物联网平台接收并处理数据（校验、换算、存储）'},
+    {log:'st4',msg:'呈现完成：OLED 屏更新为 <b>{v} m/s</b>（{lvl}）'}
+  ];
+  var LVL=[[10.8,'大风预警','warn'],[5.5,'风力较强','warn'],[1.6,'微风',''],[0,'无风','']];
+  var timer=null, busy=false, hist=[];
+
+  function level(v){ for(var i=0;i<LVL.length;i++){ if(v>LVL[i][0]) return {n:LVL[i][1],w:LVL[i][2]}; } }
+  function log(html,cls){
+    var t=new Date().toTimeString().slice(0,8);
+    $('log').insertAdjacentHTML('beforeend','<p><time>'+t+'</time><span class="'+(cls||'')+'">'+html+'</span></p>');
+    $('log').scrollTop=$('log').scrollHeight;
+  }
+  function paint(){
+    var c=$('chart'); c.innerHTML='';
+    hist.slice(-12).forEach(function(v){
+      var i=document.createElement('i');
+      i.style.height=Math.min(100,v/12*100)+'%';
+      if(v>10.8) i.className='warn';
+      i.innerHTML='<b>'+v+'</b>';
+      c.appendChild(i);
+    });
+  }
+  function clearStages(){
+    for(var i=0;i<4;i++){ $('st'+i).classList.remove('active'); $('pk'+i).style.display='none'; }
+  }
+  function showPacket(i,v){
+    clearStages();
+    var s=$('st'+i); s.classList.add('active');
+    var p=$('pk'+i); p.textContent=i===0? v.toFixed(1) : (i===3? v.toFixed(1)+' ✓':'···');
+    p.style.display='flex';
+  }
+  function finish(v){
+    var l=level(v);
+    $('big').innerHTML=v.toFixed(1)+'<small> m/s</small>';
+    $('lvl').textContent=l.n; $('lvl').className='lvl '+l.w;
+    hist.push(v); paint();
+    log(STAGES[3].msg.replace('{v}',v.toFixed(1)).replace('{lvl}',l.n),'st4');
+  }
+  function collect(){
+    if(busy) return; busy=true; $('go').disabled=true;
+    var v=Math.round((Math.random()*12+0.3)*10)/10;
+    log(STAGES[0].msg.replace('{v}',v.toFixed(1)),'st1');
+    showPacket(0,v);
+    setTimeout(function(){ log(STAGES[1].msg,'st1'); showPacket(1,v); }, 650);
+    setTimeout(function(){ log(STAGES[2].msg,'st1'); showPacket(2,v); }, 1300);
+    setTimeout(function(){ showPacket(3,v); }, 1950);
+    setTimeout(function(){ clearStages(); finish(v); busy=false; $('go').disabled=false; }, 2600);
+  }
+  $('go').addEventListener('click',collect);
+  $('clear').addEventListener('click',function(){ hist=[]; paint(); $('log').innerHTML='';
+    $('big').innerHTML='--<small> m/s</small>'; $('lvl').textContent='等待数据…'; $('lvl').className='lvl'; });
+  $('auto').addEventListener('click',function(){
+    if(timer){ clearInterval(timer); timer=null; this.textContent='自动运行：关'; this.classList.remove('on'); }
+    else{ collect(); timer=setInterval(collect,2500); this.textContent='自动运行：开'; this.classList.add('on'); }
+  });
+  paint();
+  log('系统就绪，等待采集指令…');
+})();
+</script>
+</body>
+</html>

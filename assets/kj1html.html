@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>餐厅送餐机器人</title>
+<style>
+  :root{
+    --bg:#ffffff;--surface:#f6f7f9;--text:#1b1f24;--muted:#5b6470;
+    --line:#e6e8ec;--accent:#2f5fe0;--accent-soft:#eef2ff;--ok:#0f6e56;
+    --warn:#b45309;--warn-soft:#fef4e6;--danger:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color:var(--text);background:var(--bg);line-height:1.7;font-size:14px;
+    padding:22px 18px 44px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:700px;margin:0 auto}
+  h1{font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+  .hud{margin-top:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .hud .box{border:1px solid var(--line);border-radius:11px;background:var(--surface);padding:8px 6px;text-align:center}
+  .hud .k{font-size:11px;color:var(--muted);line-height:1.3}
+  .hud .v{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+  .hud .box.target{background:var(--accent-soft);border-color:#c3cee8}
+  .hud .box.target .v{color:var(--accent);font-size:19px}
+  .hud .box.time .v{color:var(--warn)}
+  .hud .box.time.low{background:var(--warn-soft);border-color:#f2d7ae}
+  .bar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);width:100%;transition:width .3s linear}
+
+  .canvas-wrap{position:relative;margin-top:14px}
+  canvas{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:14px;background:var(--surface);touch-action:none}
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.92);border-radius:14px;padding:18px;text-align:center}
+  .overlay.hidden{display:none}
+  .ov-card{max-width:400px}
+  .ov-card h3{font-size:19px;font-weight:600;margin-bottom:6px}
+  .ov-card p{font-size:13px;color:var(--muted);margin-bottom:4px}
+  .ov-card .big{font-size:28px;font-weight:600;color:var(--accent);margin:6px 0 10px}
+  .ov-card .rules{text-align:left;font-size:12.5px;color:var(--muted);margin:10px 0 14px;line-height:1.9}
+  .ov-card .rules b{color:var(--text)}
+
+  button{font:inherit;font-size:13px;padding:8px 15px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--text);transition:.16s}
+  button:hover{border-color:#c3cee8;color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;min-width:104px}
+  button.primary:hover{background:#2450c4;color:#fff}
+  .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;align-items:center}
+
+  .padwrap{margin-top:14px;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+  .pad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,44px);gap:6px}
+  .pad button{padding:0;font-size:17px;border-radius:10px}
+  .pad .up{grid-column:2;grid-row:1}
+  .pad .left{grid-column:1;grid-row:2}
+  .pad .go{grid-column:2;grid-row:2;background:var(--accent-soft);border-color:#c3cee8;color:var(--accent);font-size:12px;font-weight:600}
+  .pad .right{grid-column:3;grid-row:2}
+  .pad .down{grid-column:2;grid-row:3}
+  .padside{flex:1;min-width:210px;font-size:12.5px;color:var(--muted);line-height:1.95}
+  .padside b{color:var(--text)}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--muted)}
+
+  .msg{margin-top:14px;font-size:13px;padding:10px 13px;border-radius:10px;background:var(--surface);color:var(--muted);border:1px solid var(--line);min-height:42px}
+  .msg.ok{background:#eaf6f1;border-color:#bfdfd1;color:var(--ok)}
+  .msg.warn{background:var(--warn-soft);border-color:#f2d7ae;color:var(--warn)}
+  .msg.err{background:#fdecea;border-color:#f5c6c0;color:var(--danger)}
+
+  .tips{margin-top:22px;border-top:1px solid var(--line);padding-top:14px;font-size:12.5px;color:var(--muted);line-height:1.95}
+  .tips b{color:var(--text)}
+  .tips ul{margin:4px 0 0 18px}
+  @media (max-width:560px){ .hud{grid-template-columns:repeat(3,1fr)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🤖 餐厅送餐机器人</h1>
+  <div class="sub">系统随机指定桌号，用方向键控制机器人从厨房出发，把餐送到指定的餐桌</div>
+
+  <div class="hud">
+    <div class="box"><div class="k">关卡</div><div class="v" id="hLevel">1/6</div></div>
+    <div class="box target"><div class="k">本单送到</div><div class="v" id="hTarget">-</div></div>
+    <div class="box time" id="hTimeBox"><div class="k">剩余时间</div><div class="v" id="hTime">60s</div></div>
+    <div class="box"><div class="k">已走 / 最少</div><div class="v" id="hSteps">0 / -</div></div>
+    <div class="box"><div class="k">总得分</div><div class="v" id="hScore">0</div></div>
+  </div>
+  <div class="bar"><i id="hBar"></i></div>
+
+  <div class="canvas-wrap">
+    <canvas id="cv"></canvas>
+    <div class="overlay" id="ov"><div class="ov-card" id="ovBody"></div></div>
+  </div>
+
+  <div class="row">
+    <button class="primary" id="btnStart">开始挑战</button>
+    <button id="btnReset">重置机器人</button>
+    <button id="btnHint">显示路线（-20 分）</button>
+    <button id="btnRestart">重新开始</button>
+  </div>
+
+  <div class="padwrap">
+    <div class="pad" id="pad">
+      <button class="up" data-dir="0">↑</button>
+      <button class="left" data-dir="3">←</button>
+      <button class="go" id="btnDeliver">送餐</button>
+      <button class="right" data-dir="1">→</button>
+      <button class="down" data-dir="2">↓</button>
+    </div>
+    <div class="padside">
+      按方向键，机器人转向并前进一格；走到餐桌旁<b>并面向餐桌</b>后，按「送餐」完成订单。<br>
+      键盘：<span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">←</span><span class="kbd">→</span> 移动，
+      <span class="kbd">空格</span> 送餐，<span class="kbd">R</span> 重置。
+    </div>
+  </div>
+
+  <div class="msg" id="msg">点击「开始挑战」，系统会随机给出一桌订单。</div>
+
+  <div class="tips">
+    <b>课堂用法建议</b>
+    <ul>
+      <li><b>算法启蒙</b>：让学生先口述路线（"向上走 3 格，再向右 2 格"），再动手操作，体会"步骤"的概念。</li>
+      <li><b>最短路径</b>：HUD 里的「最少步数」是最优解，比一比谁能一步不多地送到。</li>
+      <li><b>方向感训练</b>：机器人有朝向，换方向要先转向，这正是编程里"状态"的直观模型。</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* 地图：# 墙/隔断  . 地面  T 餐桌  P 绿植(障碍)  K 厨房(起点) */
+var MAPS = [
+  { name:'标准餐厅', rows:[
+    '#############',
+    '#...........#',
+    '#.T...T...T.#',
+    '#...........#',
+    '#.T...T...T.#',
+    '#...........#',
+    '#K..........#',
+    '#############'
+  ]},
+  { name:'繁忙餐厅', rows:[
+    '#############',
+    '#...........#',
+    '#.T.#.T.#.T.#',
+    '#...........#',
+    '#.T.#.P.#.T.#',
+    '#...........#',
+    '#....T.T....#',
+    '#K..........#',
+    '#############'
+  ]},
+  { name:'隔断包间', rows:[
+    '#############',
+    '#...........#',
+    '#.T.P...P.T.#',
+    '#.##.....##.#',
+    '#....T.T....#',
+    '#.##.....##.#',
+    '#.T.P...P.T.#',
+    '#K..........#',
+    '#############'
+  ]}
+];
+var LEVELS = [
+  { map:0, time:60 }, { map:0, time:52 },
+  { map:1, time:58 }, { map:1, time:50 },
+  { map:2, time:58 }, { map:2, time:50 }
+];
+var D = [[0,-1],[1,0],[0,1],[-1,0]];   /* 0上 1右 2下 3左 */
+var CELL = 46;
+
+function parseMap(m){
+  var rows = m.rows, H = rows.length, W = rows[0].length, cells = [], tables = [], start = null;
+  for (var r = 0; r < H; r++){
+    cells[r] = [];
+    for (var c = 0; c < W; c++){
+      var ch = rows[r].charAt(c);
+      if (ch === 'T'){ tables.push({ n:tables.length + 1, c:c, r:r }); cells[r][c] = { type:'T' }; }
+      else if (ch === 'K'){ start = { c:c, r:r }; cells[r][c] = { type:'K' }; }
+      else if (ch === 'P'){ cells[r][c] = { type:'P' }; }
+      else if (ch === '#'){ cells[r][c] = { type:'#' }; }
+      else { cells[r][c] = { type:'.' }; }
+    }
+  }
+  return { name:m.name, W:W, H:H, cells:cells, tables:tables, start:start };
+}
+var GRIDS = MAPS.map(parseMap);
+
+function walkable(g, c, r){
+  if (r < 0 || r >= g.H || c < 0 || c >= g.W) return false;
+  var t = g.cells[r][c].type;
+  return t === '.' || t === 'K';
+}
+function shortest(g, from, table){
+  var goals = {}, i;
+  var sc = [];
+  for (i = 0; i < 4; i++){
+    var c = table.c + D[i][0], r = table.r + D[i][1];
+    if (walkable(g, c, r)){ sc.push({ c:c, r:r }); goals[c + ',' + r] = true; }
+  }
+  var dist = {}, prev = {}, q = [], head = 0, s = from.c + ',' + from.r;
+  dist[s] = 0; q.push(from);
+  while (head < q.length){
+    var cur = q[head++], ck = cur.c + ',' + cur.r;
+    if (goals[ck]){
+      var path = [], p = ck;
+      while (p !== s){ path.unshift(p); p = prev[p]; }
+      path.unshift(s);
+      return { steps:dist[ck], path:path.map(function(x){ var a = x.split(','); return { c:+a[0], r:+a[1] }; }) };
+    }
+    for (var d = 0; d < 4; d++){
+      var nc = cur.c + D[d][0], nr = cur.r + D[d][1], nk = nc + ',' + nr;
+      if (!walkable(g, nc, nr) || dist[nk] !== undefined) continue;
+      dist[nk] = dist[ck] + 1; prev[nk] = ck; q.push({ c:nc, r:nr });
+    }
+  }
+  return { steps:-1, path:[] };
+}
+
+var G = {
+  level:1, score:0, grid:null, robot:{ c:1, r:1, dir:0, ang:0, ox:0, oy:0 },
+  target:1, steps:0, optimal:0, timeLeft:0, timeMax:0, timer:null,
+  state:'idle', carrying:true, hintUsed:false, hintPath:null, lastTarget:-1
+};
+function $(s){ return document.querySelector(s); }
+function say(t, k){ var el = $('#msg'); el.className = 'msg' + (k ? ' ' + k : ''); el.innerHTML = t; }
+
+/* ---------- 绘制 ---------- */
+var cv = $('#cv'), ctx = cv.getContext('2d');
+function setupCanvas(){
+  var g = G.grid, dpr = window.devicePixelRatio || 1, w = g.W * CELL, h = g.H * CELL;
+  cv.width = w * dpr; cv.height = h * dpr;
+  cv.style.aspectRatio = w + ' / ' + h;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function rr(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function px(v){ return v * CELL + CELL / 2; }
+function tableByNum(n){ return G.grid.tables.filter(function(t){ return t.n === n; })[0]; }
+
+function draw(){
+  var g = G.grid, c, r, x, y, i;
+  ctx.clearRect(0, 0, g.W * CELL, g.H * CELL);
+  for (r = 0; r < g.H; r++){
+    for (c = 0; c < g.W; c++){
+      x = c * CELL; y = r * CELL;
+      ctx.fillStyle = ((c + r) % 2 === 0) ? '#f8f9fb' : '#f0f2f6';
+      ctx.fillRect(x, y, CELL, CELL);
+    }
+  }
+  var st = g.start;
+  ctx.fillStyle = '#fff4dc'; ctx.fillRect(st.c * CELL, st.r * CELL, CELL, CELL);
+  ctx.strokeStyle = '#f0d9a8'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(st.c * CELL + 1, st.r * CELL + 1, CELL - 2, CELL - 2);
+  ctx.fillStyle = '#a9762a'; ctx.font = '600 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('厨房', px(st.c), px(st.r) + 4);
+
+  for (r = 0; r < g.H; r++){
+    for (c = 0; c < g.W; c++){
+      var ty = g.cells[r][c].type; x = c * CELL; y = r * CELL;
+      if (ty === '#'){
+        ctx.fillStyle = '#e9ebef'; ctx.fillRect(x, y, CELL, CELL);
+        ctx.fillStyle = '#3b4553'; rr(x + 2, y + 2, CELL - 4, CELL - 4, 5); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.08)'; rr(x + 6, y + 6, CELL - 12, CELL - 14, 4); ctx.fill();
+      } else if (ty === 'P'){
+        ctx.fillStyle = '#9ecfaa';
+        ctx.beginPath(); ctx.arc(px(c), px(r), CELL * 0.3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#5aa06c';
+        ctx.beginPath(); ctx.arc(px(c) - 4, px(r) + 3, CELL * 0.16, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  if (G.hintPath && G.hintPath.length > 1){
+    ctx.save();
+    ctx.setLineDash([5, 4]); ctx.lineWidth = 3; ctx.strokeStyle = '#f0a03c';
+    ctx.beginPath();
+    for (i = 0; i < G.hintPath.length; i++){
+      var p = G.hintPath[i];
+      if (i === 0) ctx.moveTo(px(p.c), px(p.r)); else ctx.lineTo(px(p.c), px(p.r));
+    }
+    ctx.stroke(); ctx.restore();
+  }
+
+  for (i = 0; i < g.tables.length; i++){
+    var tb = g.tables[i]; x = tb.c * CELL; y = tb.r * CELL;
+    var on = (tb.n === G.target) && (G.state === 'playing');
+    ctx.fillStyle = on ? '#eef2ff' : '#ffffff';
+    ctx.strokeStyle = on ? '#2f5fe0' : '#d5d9e0';
+    ctx.lineWidth = on ? 2.4 : 1.4;
+    rr(x + 4, y + 4, CELL - 8, CELL - 8, 9); ctx.fill(); ctx.stroke();
+    if (on){
+      var pulse = 0.5 + 0.5 * Math.sin(Date.now() / 260);
+      ctx.strokeStyle = 'rgba(47,95,224,' + (0.25 + 0.45 * pulse) + ')';
+      ctx.lineWidth = 2; rr(x - 1, y - 1, CELL + 2, CELL + 2, 11); ctx.stroke();
+    }
+    ctx.fillStyle = on ? '#2f5fe0' : '#39424f';
+    ctx.font = '700 17px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(tb.n), px(tb.c), px(tb.r) - 4);
+    ctx.font = '10px sans-serif';
+    ctx.fillStyle = on ? '#2f5fe0' : '#8a929e';
+    ctx.fillText('号桌', px(tb.c), px(tb.r) + 12);
+  }
+
+  var rb = G.robot;
+  ctx.save();
+  ctx.translate(px(rb.c) + rb.ox, px(rb.r) + rb.oy);
+  ctx.fillStyle = 'rgba(0,0,0,.10)';
+  ctx.beginPath(); ctx.ellipse(0, 13, 12, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.rotate(rb.ang);
+  if (G.carrying){
+    ctx.fillStyle = '#f5c45e'; rr(-8, -15, 16, 6, 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -12, 3.2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = '#2f5fe0'; rr(-12, -11, 24, 22, 7); ctx.fill();
+  ctx.fillStyle = '#1d47b8'; rr(-12, 3, 24, 8, 5); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(4.5, -3); ctx.lineTo(-4.5, -3); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(-4.5, 1, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(4.5, 1, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#16233f';
+  ctx.beginPath(); ctx.arc(-4.5, 1.2, 1.1, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(4.5, 1.2, 1.1, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+}
+
+var anim = null;
+function loop(){
+  if (anim){
+    var p = Math.min(1, (Date.now() - anim.t0) / anim.dur);
+    anim.step(p);
+    if (p >= 1){ var d = anim.done; anim = null; if (d) d(); }
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+function animate(dur, step, done){ anim = { t0:Date.now(), dur:Math.max(1, dur), step:step, done:done }; }
+function animMove(nc, nr){
+  var rb = G.robot, dx = (nc - rb.c) * CELL, dy = (nr - rb.r) * CELL;
+  return new Promise(function(res){
+    animate(190, function(p){ rb.ox = dx * p; rb.oy = dy * p; },
+      function(){ rb.c = nc; rb.r = nr; rb.ox = 0; rb.oy = 0; res(); });
+  });
+}
+function animTurn(dir){
+  var rb = G.robot, from = rb.ang, to = dir * Math.PI / 2;
+  while (to - from > Math.PI) to -= Math.PI * 2;
+  while (from - to > Math.PI) to += Math.PI * 2;
+  return new Promise(function(res){
+    animate(160, function(p){ rb.ang = from + (to - from) * p; },
+      function(){ rb.ang = dir * Math.PI / 2; rb.dir = dir; res(); });
+  });
+}
+
+/* ---------- 状态 ---------- */
+function syncHUD(){
+  $('#hLevel').textContent = G.level + '/' + LEVELS.length;
+  $('#hTarget').textContent = G.target + ' 号桌';
+  $('#hTime').textContent = G.timeLeft + 's';
+  $('#hSteps').textContent = G.steps + ' / ' + (G.optimal > 0 ? G.optimal : '-');
+  $('#hScore').textContent = G.score;
+  $('#hBar').style.width = (G.timeMax ? Math.max(0, G.timeLeft / G.timeMax) * 100 : 0) + '%';
+  $('#hTimeBox').className = 'box time' + (G.timeLeft <= 10 ? ' low' : '');
+}
+function refreshOptimal(){
+  var s = shortest(G.grid, G.robot, tableByNum(G.target));
+  G.optimal = s.steps;
+  if (G.hintPath) G.hintPath = s.path;
+  syncHUD();
+}
+function resetRobot(silent){
+  G.robot.c = G.grid.start.c; G.robot.r = G.grid.start.r;
+  G.robot.dir = 0; G.robot.ang = 0; G.robot.ox = 0; G.robot.oy = 0;
+  G.steps = 0; refreshOptimal();
+  if (!silent) say('机器人已回到厨房，重新送这一单。');
+}
+function pickTarget(){
+  var list = G.grid.tables, n, guard = 0;
+  do { n = list[Math.floor(Math.random() * list.length)].n; guard++; }
+  while (n === G.lastTarget && list.length > 1 && guard < 30);
+  G.target = n; G.lastTarget = n;
+}
+function loadLevel(lv){
+  G.level = Math.min(lv, LEVELS.length);
+  var cfg = LEVELS[G.level - 1];
+  G.grid = GRIDS[cfg.map];
+  G.carrying = true; G.hintUsed = false; G.hintPath = null;
+  setupCanvas(); resetRobot(true); pickTarget(); refreshOptimal();
+  G.timeMax = cfg.time; G.timeLeft = cfg.time;
+  startTimer();
+}
+function startTimer(){
+  stopTimer();
+  G.timer = setInterval(function(){
+    if (G.state !== 'playing') return;
+    G.timeLeft--;
+    if (G.timeLeft <= 0){ G.timeLeft = 0; syncHUD(); fail('⏰ 时间到，这单没送出去'); }
+    else syncHUD();
+  }, 1000);
+}
+function stopTimer(){ if (G.timer){ clearInterval(G.timer); G.timer = null; } }
+function showOverlay(h){ $('#ovBody').innerHTML = h; $('#ov').classList.remove('hidden'); }
+function hideOverlay(){ $('#ov').classList.add('hidden'); }
+function tip(){ say('🎯 请把餐送到 <b>' + G.target + ' 号桌</b>：走到餐桌旁并<b>面向</b>它，再按「送餐」。', 'warn'); }
+
+function fail(reason){
+  G.state = 'fail'; stopTimer();
+  showOverlay('<h3>' + reason + '</h3>' +
+    '<p>第 ' + G.level + ' 关 · 目标 ' + G.target + ' 号桌 · 走了 ' + G.steps + ' 步（最少 ' + G.optimal + ' 步）</p>' +
+    '<div class="row" style="justify-content:center">' +
+    '<button class="primary" id="ovRetry">重试本关</button><button id="ovRestart">从第一关开始</button></div>');
+  $('#ovRetry').addEventListener('click', function(){ hideOverlay(); G.state = 'playing'; loadLevel(G.level); tip(); });
+  $('#ovRestart').addEventListener('click', function(){ hideOverlay(); restart(); });
+}
+function win(){
+  G.state = 'won'; G.carrying = false; stopTimer();
+  var timeBonus = G.timeLeft * 3;
+  var eff = Math.max(0, Math.round(60 * Math.min(1, G.optimal / Math.max(G.steps, 1))));
+  var penalty = G.hintUsed ? 20 : 0;
+  var gain = Math.max(20, 100 + timeBonus + eff - penalty);
+  G.score += gain; syncHUD();
+  var last = G.level >= LEVELS.length;
+  showOverlay('<h3>' + (last ? '🎉 全部通关！' : '✅ 送达成功！') + '</h3>' +
+    '<div class="big">' + G.target + ' 号桌</div>' +
+    '<p>基础 100 ＋ 剩余 ' + G.timeLeft + 's×3 ＝ ' + timeBonus + ' ＋ 效率 ' + eff +
+      (penalty ? ' － 提示 20' : '') + ' ＝ <b>' + gain + ' 分</b></p>' +
+    '<p>你走了 ' + G.steps + ' 步，最少 ' + G.optimal + ' 步' + (G.steps <= G.optimal ? '（完美路线！）' : '') + '</p>' +
+    '<div class="row" style="justify-content:center">' +
+    (last ? '<button class="primary" id="ovAgain">再来一轮</button>'
+          : '<button class="primary" id="ovNext">下一关 →</button>') + '</div>');
+  var b = last ? $('#ovAgain') : $('#ovNext');
+  b.addEventListener('click', function(){
+    hideOverlay();
+    if (last) restart();
+    else { G.state = 'playing'; loadLevel(G.level + 1); tip(); }
+  });
+}
+function restart(){
+  G.score = 0; G.level = 1; G.lastTarget = -1; G.state = 'playing';
+  loadLevel(1); tip();
+}
+
+/* ---------- 操作 ---------- */
+var busy = false;
+function tryMove(dir){
+  if (busy || G.state !== 'playing') return;
+  var rb = G.robot, nc = rb.c + D[dir][0], nr = rb.r + D[dir][1];
+  if (walkable(G.grid, nc, nr)){
+    busy = true;
+    (rb.dir !== dir ? animTurn(dir) : Promise.resolve()).then(function(){
+      return animMove(nc, nr);
+    }).then(function(){
+      G.steps++; refreshOptimal(); busy = false;
+      var tb = tableByNum(G.target);
+      if (rb.c + D[rb.dir][0] === tb.c && rb.r + D[rb.dir][1] === tb.r){
+        say('到位了！机器人正对 <b>' + G.target + ' 号桌</b>，按「送餐」完成订单。', 'ok');
+      }
+    });
+  } else if (rb.dir !== dir){
+    busy = true; animTurn(dir).then(function(){ busy = false; });
+  } else {
+    say('前面是墙或餐桌，走不过去，换个方向吧。', 'warn');
+  }
+}
+function manualDeliver(){
+  if (busy || G.state !== 'playing') return;
+  var tb = tableByNum(G.target), d = G.robot.dir;
+  if (G.robot.c + D[d][0] === tb.c && G.robot.r + D[d][1] === tb.r){ win(); return; }
+  var adj = Math.abs(G.robot.c - tb.c) + Math.abs(G.robot.r - tb.r) === 1;
+  if (adj) say('就在桌边了，但机器人没<b>面向</b>餐桌 —— 按一下朝向餐桌的方向键，再送餐。', 'warn');
+  else say('离 ' + G.target + ' 号桌还远呢，最少还要走 ' + G.optimal + ' 步。', 'warn');
+}
+
+document.querySelectorAll('#pad button[data-dir]').forEach(function(b){
+  b.addEventListener('click', function(){ tryMove(Number(b.getAttribute('data-dir'))); });
+});
+$('#btnDeliver').addEventListener('click', manualDeliver);
+$('#btnReset').addEventListener('click', function(){
+  if (G.state === 'playing' || G.state === 'fail'){ hideOverlay(); G.state = 'playing'; resetRobot(false); }
+});
+$('#btnHint').addEventListener('click', function(){
+  if (G.state !== 'playing') return;
+  if (!G.hintUsed){ G.hintUsed = true; G.score = Math.max(0, G.score - 20); }
+  G.hintPath = shortest(G.grid, G.robot, tableByNum(G.target)).path;
+  syncHUD(); say('橙色虚线是最短路线（' + G.optimal + ' 步），本次扣 20 分。', 'warn');
+});
+$('#btnStart').addEventListener('click', function(){ hideOverlay(); G.state = 'playing'; loadLevel(G.level); tip(); });
+$('#btnRestart').addEventListener('click', function(){ hideOverlay(); restart(); });
+
+document.addEventListener('keydown', function(e){
+  var k = e.key;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].indexOf(k) > -1) e.preventDefault();
+  if (G.state === 'idle' && (k === 'Enter' || k === ' ')){ $('#btnStart').click(); return; }
+  if (G.state !== 'playing') return;
+  if (k === 'ArrowUp') tryMove(0);
+  else if (k === 'ArrowRight') tryMove(1);
+  else if (k === 'ArrowDown') tryMove(2);
+  else if (k === 'ArrowLeft') tryMove(3);
+  else if (k === ' ' || k === 'Enter') manualDeliver();
+  else if (k === 'r' || k === 'R') resetRobot(false);
+  else if (k === 'h' || k === 'H') $('#btnHint').click();
+});
+
+/* ---------- 启动 ---------- */
+G.grid = GRIDS[0];
+setupCanvas();
+requestAnimationFrame(loop);
+showOverlay('<h3>🤖 餐厅送餐机器人</h3>' +
+  '<p>系统每次随机指定一个桌号，把餐从厨房送到那一桌。</p>' +
+  '<div class="rules">' +
+  '1. 机器人从「厨房」出发，餐已经在手上。<br>' +
+  '2. 只能上下左右走，墙、绿植、餐桌都过不去。<br>' +
+  '3. 走到餐桌<b>旁边</b>并且<b>面向</b>它，才能送餐。<br>' +
+  '4. 共 ' + LEVELS.length + ' 关，分数按用时和步数算，走得越省分越高。' +
+  '</div>' +
+  '<div class="row" style="justify-content:center"><button class="primary" id="ovStart">开始挑战</button></div>');
+$('#ovStart').addEventListener('click', function(){ hideOverlay(); G.state = 'playing'; loadLevel(1); tip(); });
+
+})();
+</script>
+</body>
+</html>
