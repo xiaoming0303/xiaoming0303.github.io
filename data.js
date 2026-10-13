@@ -55,8 +55,8 @@ const SITE = {
         title: '《输入输出与计算》',
         tag: '六年级 · 沪教版',
         desc: '用"机器人送餐"的案例引入控制系统的输入，计算，输出三个环节。',
-        cover: 'assets/kj1.jpg',                    // 封面图路径，例：'assets/kejian-01.png'
-        gallery: ['assets/kj1-1.jpg'],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
+        cover: 'assets/kj1.png',                    // 封面图路径，例：'assets/kejian-01.png'
+        gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
         files: [
           { name: '课件 PPT', href: '', note: 'PPTX' },
           { name: '教学设计', href: '', note: 'DOCX' },
