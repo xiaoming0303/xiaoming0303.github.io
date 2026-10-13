@@ -216,6 +216,7 @@
           ((h.primaryBtn && hrefOk(h.primaryBtn.href)) ? '<a class="btn btn-primary" href="' + esc(h.primaryBtn.href) + '">' + esc(h.primaryBtn.label) + '</a>' : '') +
           ((h.secondaryBtn && hrefOk(h.secondaryBtn.href)) ? '<a class="btn btn-ghost" href="' + esc(h.secondaryBtn.href) + '">' + esc(h.secondaryBtn.label) + '</a>' : '') +
         '</div>' +
+      '</div>' +
       '<div class="avatar">' + avatar + '</div>';
   }
 
