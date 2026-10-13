@@ -54,36 +54,38 @@ const SITE = {
       {
         title: '《输入输出与计算》',
         tag: '六年级 · 沪教版',
-        desc: '用"机器人送餐"的案例引入控制系统的输入，计算，输出三个环节。',
+        desc: '用"机器人送餐"的案例学习控制系统的输入，计算，输出三个环节。',
         cover: 'assets/kj1.png',                    // 封面图路径，例：'assets/kejian-01.png'
         gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
-        files: [
+        links: [
           { name: '课件 PPT', href: 'assets/kj1ppt.pptx', note: 'PPTX' },
           { name: '教学设计', href: 'assets/kj1sj.docx', note: 'DOCX' },
           { name: '学习任务单', href: 'assets/kj1rwd.docx', note: 'DOCX' },
-          { name: '送餐模拟html', href:'',note:'HTML'}
+          { name: '送餐模拟html', href:'assets/kj1html.html',note:'HTML'}
         ]
       },
       {
-        title: '《网络安全与信息素养》',
-        tag: '八年级',
-        desc: '情景剧导入 + 小组辩论，讨论密码安全、网络身份与信息甄别，附课堂辩论评分表。',
-        cover: '',
+        title: '《人工智能 · 语音识别技术》',
+        tag: '七年级 · 安徽',
+        desc: '项目式学习，通过分析景区导览新功能，学习语音识别技术的原理，过程及其应用。',
+        cover: 'assets/kj2.png',
         gallery: [],
         files: [
-          { name: '课件 PPT',   href: '', note: 'PPTX' },
-          { name: '辩论评分表',          href: '', note: 'PDF' }
+          { name: '课件 PPT', href: 'assets/kj2ppt.pptx', note: 'PPTX' },
+          { name：'教学设计', href:'assets/kj2sj.docx',note:'DOCX'},
+          { name: '送餐模拟html', href:'assets/kj2html.html',note:'HTML'},
         ]
       },
       {
-        title: '《Excel 数据处理初步》',
-        tag: '八年级',
-        desc: '以学生自己的成绩表为素材做任务驱动，讲透相对引用、公式与图表呈现。',
-        cover: '',
+        title: '《智能物联系统的设计》',
+        tag: '八年级 · 浙教版',
+        desc: '以智能校园数字气象站系统的设计导入，学习智能物联网设计的需求分析与整体设计。',
+        cover: 'assets/kj3.png',
         gallery: [],
-        files: [
-          { name: '课件 PPT',   href: '', note: 'PPTX' },
-          { name: '示例数据文件',        href: '', note: 'XLSX' }
+        links: [
+          { name: '课件 PPT',   href: 'assets/kj3ppt.pptx', note: 'PPTX' },
+          { name：'教学设计', href:'assets/kj3sj.docx',note:'DOCX'},
+          { name: '送餐模拟html', href:'assets/kj3html.html',note:'HTML'},
         ]
       }
     ]
