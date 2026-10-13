@@ -103,32 +103,32 @@ const SITE = {
       {
         title: 'Scratch 作品1 · 飞船射击游戏',
         tag: 'Scratch · sb3',
-        desc: '，简单的实现逻辑结合丰富的游戏特效。',
-        cover: '',
+        desc: '飞船射击游戏，简单的实现逻辑结合丰富的游戏特效。',
+        cover: 'assets/html1.png',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
-        embed: '',
-        links: [ { label: '源文件下载', href: '' } ]
+        embed: 'tools/lemonshot.html',
+        links: [ { label: '源文件下载', href: 'tools/lemonshot.html' } ]
       },
       {
         title: 'Scratch 作品2 ·程序化蜥蜴',
         tag: 'Scratch · sb3',
         desc: '程序化动画，使用程序设计了一只可控制的动画蜥蜴。',
-        cover: '',
+        cover: 'assets/html2.png',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
-        embed: '',
-        links: [ { label: '源文件下载', href: '' } ]
+        embed: 'tools/codexiyi.html',
+        links: [ { label: '源文件下载', href: 'tools/codexiyi.html' } ]
       },
       {
         title: 'Scratch 作品3 · 递归梅花树',
         tag: 'Scratch · sb3',
         desc: '采用递归法，现场设计一颗梅花树。',
-        cover: '',
+        cover: 'assets/html3.png',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
-        embed: '',
-        links: [ { label: '源文件下载', href: '' } ]
+        embed: 'tools/diguitree.html',
+        links: [ { label: '源文件下载', href: 'tools/codexiyi.html' } ]
       },
       {
         title: '成绩统计工具',
