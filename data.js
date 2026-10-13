@@ -84,7 +84,7 @@ const SITE = {
         gallery: [],
         files: [
           { name: '课件 PPT',   href: 'assets/kj3ppt.pptx', note: 'PPTX' },
-          { name：'教学设计', href:'assets/kj3sj.docx',note:'DOCX'},
+          { name: '教学设计', href:'assets/kj3sj.docx',note:'DOCX'},
           { name: '智能物联系统html', href:'assets/kj3html.html',note:'HTML'},
         ]
       }
