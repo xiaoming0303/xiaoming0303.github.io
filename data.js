@@ -177,7 +177,7 @@ const SITE = {
         title: 'python语法可视化编辑器',
         tag: '主要语言Python',
         desc: '学生直接在窗口里修改代码，右侧实时看到变量 / 列表 / 循环 / 分支的执行可视化。',
-        cover: 'assets/gt1.png',
+        cover: 'assets/gt2.png',
         gallery: [],
         links: [ { label: '代码仓库', href: 'https://github.com/xiaoming0303/code_visualizer' } ]
       },
@@ -185,7 +185,7 @@ const SITE = {
         title: '算法可视化教学工具',
         tag: '主要语言Python',
         desc: '面向课堂演示的桌面可视化工具，覆盖四大重点： 排序（冒泡/插入/选择）、二分查找、栈、二叉树遍历。',
-        cover: 'assets/gt2.png',
+        cover: 'assets/gt1.png',
         gallery: [],
         links: [ { label: '代码仓库', href: 'https://github.com/xiaoming0303/algorithm_visualizer' } ]
       },
