@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音识别步骤排序游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            padding: 30px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .tips {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .game-box {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .random-area, .sort-area {
+            width: 48%;
+            min-width: 400px;
+            min-height: 500px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+        .random-area {
+            background-color: #e3f2fd;
+            border: 2px dashed #1976d2;
+        }
+        .sort-area {
+            background-color: #e8f5e9;
+            border: 2px dashed #388e3c;
+        }
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #90caf9;
+            cursor: grab;
+            transition: 0.3s;
+            font-size: 17px;
+            line-height: 1.6;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .card:active {
+            cursor: grabbing;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        .btn-box {
+            text-align: center;
+            margin-top: 40px;
+        }
+        button {
+            padding: 14px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 15px;
+            transition: 0.3s;
+        }
+        #check {
+            background: #2ecc71;
+            color: white;
+        }
+        #reset {
+            background: #e74c3c;
+            color: white;
+        }
+        #result {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        .correct {
+            color: #2ecc71;
+        }
+        .wrong {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎧 语音识别四大步骤 —— 排序小游戏</h1>
+    <p class="tips">请把左侧打乱的卡片，拖拽到右侧按正确顺序排列！</p>
+
+    <div class="game-box">
+        <div class="random-area" id="random">
+            <div class="title">🔀 打乱的步骤卡片</div>
+        </div>
+
+        <div class="sort-area" id="sort">
+            <div class="title">✅ 正确顺序排序区</div>
+        </div>
+    </div>
+
+    <div class="btn-box">
+        <button id="check">✅ 检查答案</button>
+        <button id="reset">🔄 重新开始</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // 正确顺序：语音采集 → 特征提取 → 匹配与识别 → 文字输出
+    const correctList = [
+        { id:1, title:"语音采集", text:"通过麦克风等设备采集语音，消除无关信息，转换成可识别的数据。" },
+        { id:2, title:"特征提取", text:"从语音中找出最关键、最能代表说话内容的特征信息。" },
+        { id:3, title:"匹配与识别", text:"用声学模型比对声音，用语言模型匹配文字，完成识别。" },
+        { id:4, title:"文字输出", text:"将识别结果以清晰的文本形式展示在设备上。" }
+    ];
+
+    let randomList = [...correctList].sort(() => Math.random() - 0.5);
+    let dragCard = null;
+
+    // 初始化打乱卡片
+    function initRandom() {
+        const box = document.getElementById('random');
+        box.innerHTML = '<div class="title">🔀 打乱的步骤卡片</div>';
+        randomList.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.dataset.id = item.id;
+            card.innerText = item.title + "\n" + item.text;
+            box.appendChild(card);
+        });
+    }
+
+    // 拖拽事件
+    function dragEvent() {
+        document.addEventListener('dragstart', e => {
+            if(e.target.classList.contains('card')) {
+                dragCard = e.target;
+                e.target.classList.add('dragging');
+            }
+        });
+
+        document.addEventListener('dragend', e => {
+            if(e.target.classList.contains('card')) {
+                e.target.classList.remove('dragging');
+                dragCard = null;
+            }
+        });
+
+        const areas = [document.getElementById('random'), document.getElementById('sort')];
+        areas.forEach(area => {
+            area.addEventListener('dragover', e => e.preventDefault());
+            area.addEventListener('drop', e => {
+                e.preventDefault();
+                if(dragCard) area.appendChild(dragCard);
+            });
+        });
+    }
+
+    // 检查答案
+    function checkAnswer() {
+        const sortCards = document.querySelectorAll('#sort .card');
+        const res = document.getElementById('result');
+        
+        if(sortCards.length !== 4) {
+            res.className = 'wrong';
+            res.innerText = '❌ 请把4张卡片全部放入排序区！';
+            return;
+        }
+
+        let ok = true;
+        sortCards.forEach((card, i) => {
+            if(Number(card.dataset.id) !== correctList[i].id) ok = false;
+        });
+
+        if(ok) {
+            res.className = 'correct';
+            res.innerText = '🎉 恭喜你！排序完全正确！';
+        } else {
+            res.className = 'wrong';
+            res.innerText = '❌ 顺序不对哦，再思考一下正确流程吧！';
+        }
+    }
+
+    // 重置游戏
+    function reset() {
+        randomList = [...correctList].sort(() => Math.random() - 0.5);
+        document.getElementById('sort').innerHTML = '<div class="title">✅ 正确顺序排序区</div>';
+        document.getElementById('result').innerText = '';
+        initRandom();
+    }
+
+    // 启动游戏
+    window.onload = () => {
+        initRandom();
+        dragEvent();
+        document.getElementById('check').onclick = checkAnswer;
+        document.getElementById('reset').onclick = reset;
+    };
+</script>
+
+</body>
+</html>
