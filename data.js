@@ -57,7 +57,7 @@ const SITE = {
         desc: '用"机器人送餐"的案例学习控制系统的输入，计算，输出三个环节。',
         cover: 'assets/kj1.png',                    // 封面图路径，例：'assets/kejian-01.png'
         gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
-        links: [
+        files: [
           { name: '课件 PPT', href: 'assets/kj1ppt.pptx', note: 'PPTX' },
           { name: '教学设计', href: 'assets/kj1sj.docx', note: 'DOCX' },
           { name: '学习任务单', href: 'assets/kj1rwd.docx', note: 'DOCX' },
@@ -82,7 +82,7 @@ const SITE = {
         desc: '以智能校园数字气象站系统的设计导入，学习智能物联网设计的需求分析与整体设计。',
         cover: 'assets/kj3.png',
         gallery: [],
-        links: [
+        files: [
           { name: '课件 PPT',   href: 'assets/kj3ppt.pptx', note: 'PPTX' },
           { name：'教学设计', href:'assets/kj3sj.docx',note:'DOCX'},
           { name: '送餐模拟html', href:'assets/kj3html.html',note:'HTML'},
@@ -101,9 +101,9 @@ const SITE = {
     desc: '图形化编程、自制小游戏与教学实用工具，均可在线运行。',
     items: [
       {
-        title: 'Scratch 作品集',
+        title: 'Scratch 作品1 · 飞船射击游戏',
         tag: 'Scratch · sb3',
-        desc: '飞船射击游戏。',
+        desc: '，简单的实现逻辑结合丰富的游戏特效。',
         cover: '',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
@@ -111,9 +111,9 @@ const SITE = {
         links: [ { label: '源文件下载', href: '' } ]
       },
       {
-        title: 'Scratch 作品集（sb3 源文件）',
+        title: 'Scratch 作品2 ·程序化蜥蜴',
         tag: 'Scratch · sb3',
-        desc: '若干原创 Scratch 作品，涵盖动画、交互故事与益智小游戏，均提供可二次编辑的 sb3 源文件。',
+        desc: '程序化动画，使用程序设计了一只可控制的动画蜥蜴。',
         cover: '',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
@@ -121,9 +121,9 @@ const SITE = {
         links: [ { label: '源文件下载', href: '' } ]
       },
       {
-        title: 'Scratch 作品集（sb3 源文件）',
+        title: 'Scratch 作品3 · 递归梅花树',
         tag: 'Scratch · sb3',
-        desc: '若干原创 Scratch 作品，涵盖动画、交互故事与益智小游戏，均提供可二次编辑的 sb3 源文件。',
+        desc: '采用递归法，现场设计一颗梅花树。',
         cover: '',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
