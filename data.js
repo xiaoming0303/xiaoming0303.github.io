@@ -103,7 +103,7 @@ const SITE = {
       {
         title: 'Scratch 作品1 · 飞船射击游戏',
         tag: 'Scratch · sb3',
-        desc: '飞船射击游戏，简单的实现逻辑结合丰富的游戏特效。',
+        desc: '飞船射击游戏，简单的实现逻辑结合丰富的游戏特效，wasd移动，点击鼠标射击。',
         cover: 'assets/html1.png',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
