@@ -72,7 +72,7 @@ const SITE = {
         gallery: [],
         files: [
           { name: '课件 PPT', href: 'assets/kj2ppt.pptx', note: 'PPTX' },
-          { name：'教学设计', href:'assets/kj2sj.docx',note:'DOCX'},
+          { name: '教学设计', href:'assets/kj2sj.docx',note:'DOCX'},
           { name: '送餐模拟html', href:'assets/kj2html.html',note:'HTML'},
         ]
       },
