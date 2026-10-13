@@ -58,9 +58,9 @@ const SITE = {
         cover: 'assets/kj1.png',                    // 封面图路径，例：'assets/kejian-01.png'
         gallery: [],                  // 内页截图：['assets/k1a.png','assets/k1b.png']
         files: [
-          { name: '课件 PPT', href: '', note: 'PPTX' },
-          { name: '教学设计', href: '', note: 'DOCX' },
-          { name: '学习任务单', href: '', note: 'DOCX' },
+          { name: '课件 PPT', href: 'assets/kj1ppt.pptx', note: 'PPTX' },
+          { name: '教学设计', href: 'assets/kj1sj.docx', note: 'DOCX' },
+          { name: '学习任务单', href: 'assets/kj1rwd.docx', note: 'DOCX' },
           { name: '送餐模拟html', href:'',note:'HTML'}
         ]
       },
