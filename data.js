@@ -113,7 +113,7 @@ const SITE = {
       {
         title: 'Scratch 作品2 ·程序化蜥蜴',
         tag: 'Scratch · sb3',
-        desc: '程序化动画，使用程序设计了一只可控制的动画蜥蜴。',
+        desc: '程序化动画，使用程序设计了一只可控制的动画蜥蜴，使用 ↑ ↓ ← →控制方向。',
         cover: 'assets/html2.png',
         gallery: [],
         // ★ 想让访客直接在网页上玩，就把 sb3 传到网上后填这里（README 里有做法）
